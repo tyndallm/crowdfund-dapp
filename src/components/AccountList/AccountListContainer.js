@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import AccountList from 'components/AccountList/AccountList'
-import SendCoin from 'components/SendCoin/SendCoin'
 
-import MetaCoin from 'contracts/MetaCoin.sol';
+import FundingHub from 'contracts/FundingHub.sol';
 import Web3 from 'web3';
 
 const provider = new Web3.providers.HttpProvider('http://localhost:8545')
-MetaCoin.setProvider(provider);
+FundingHub.setProvider(provider);
 
 class AccountListContainer extends Component {
   constructor(props) {
@@ -22,15 +21,15 @@ class AccountListContainer extends Component {
   }
 
   _getAccountBalance (account) {
-    var meta = MetaCoin.deployed()
-    return new Promise((resolve, reject) => {
-      meta.getBalance.call(account, {from: account}).then(function (value) {
-        resolve({ account: value.valueOf() })
-      }).catch(function (e) {
-        console.log(e)
-        reject()
-      })
-    })
+    var fundingHub = FundingHub.deployed();
+    // return new Promise((resolve, reject) => {
+    //   meta.getBalance.call(account, {from: account}).then(function (value) {
+    //     resolve({ account: value.valueOf() })
+    //   }).catch(function (e) {
+    //     console.log(e)
+    //     reject()
+    //   })
+    // })
   }
 
   _getAccountBalances () {
@@ -75,7 +74,6 @@ class AccountListContainer extends Component {
     return (
       <div>
         <AccountList accounts={this.state.accounts} />
-        <SendCoin sender={this.state.coinbase} />
       </div>
     )
   }

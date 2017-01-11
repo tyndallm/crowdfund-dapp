@@ -121,7 +121,7 @@ function openBrowser() {
       execSync(
         'osascript ' +
         path.resolve(__dirname, './openChrome.applescript') +
-        ' http://localhost:3000/'
+        ' http://localhost:3030/'
       );
       return;
     } catch (err) {
@@ -130,7 +130,7 @@ function openBrowser() {
   }
   // Fallback to opn
   // (It will always open new tab)
-  opn('http://localhost:3000/');
+  opn('http://localhost:3030/');
 }
 
 new WebpackDevServer(compiler, {
@@ -138,7 +138,7 @@ new WebpackDevServer(compiler, {
   hot: true, // Note: only CSS is currently hot reloaded
   publicPath: config.output.publicPath,
   quiet: true
-}).listen(3000, 'localhost', function (err, result) {
+}).listen(3030, 'localhost', function (err, result) {
   if (err) {
     return console.log(err);
   }
