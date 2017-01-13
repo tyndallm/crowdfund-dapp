@@ -13,13 +13,20 @@ contract Project {
         uint amount;
     }
 
+    // TODO Should we keep track of number of contributions?
     mapping (address => Contribution) public contributions;
+
+    uint public totalFunding;
+    uint public numOfContributions;
 
     function Project(uint _fundingGoal, uint _deadline, string _title) {
         owner = msg.sender;
         fundingGoal = _fundingGoal;
         deadline = _deadline;
         title = _title;
+
+        totalFunding = 0;
+        numOfContributions = 0;
     }
 
     /**
@@ -28,10 +35,14 @@ contract Project {
     * Calls Refund or Payout if criteria is reached upon transaction.
     * (Optionally could only allow contributions from the creating FundingHub).
     */
-    function fund(uint _amount, address _sender) payable returns (bool successful) {
-        Contribution c = contributions[sender];
-        c.address = _sender;
+    function fund(uint _amount, address _contributor) payable returns (bool successful) {
+        Contribution c = contributions[_contributor]; // Should contributions be mapped by address or index 
+        c.contributor = _contributor;
         c.amount = _amount;
+
+        totalFunding += _amount;
+        numOfContributions++;
+
         return true;
     }
 

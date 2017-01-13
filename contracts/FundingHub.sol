@@ -41,12 +41,12 @@ contract FundingHub {
     */
     function contribute(address _projectAddress) payable returns (bool successful) { 
         // If no amount is sent throw
-        if (msg.amount <= 0) throw;
+        if (msg.value <= 0) throw;
 
         Project projectContract = Project(_projectAddress);
 
         // If contract has not been initialized throw
-        if (projectContract.owner == 0) {
+        if (projectContract.owner() == 0) {
             throw;
         }
 

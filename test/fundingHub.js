@@ -42,7 +42,7 @@ var getEventsPromise = function (myFilter, count) {
     });
 };
 
-contract('MarketManager', function(accounts) {
+contract('FundingHub', function(accounts) {
     
     it("should start with an empty project list", function() {
         var fundingHub = FundingHub.deployed();
@@ -58,13 +58,13 @@ contract('MarketManager', function(accounts) {
     it("should be possible to create a project", function() {
         var fundingHub = FundingHub.deployed();
 
-        var fundingGoal = 10000000000000000000; // wei
+        var fundingGoal = 10000000000000000000; // 10 Eth in wei
         var title = "First Project";
         var endTime = 1000; // block number
 
         var blockNumber = web3.eth.blockNumber + 1;
 
-        return fundingHub.createProject(fundingGoal, endTime, title, { from: accounts[0], value: 1000000000000000000 })
+        return fundingHub.createProject(fundingGoal, endTime, title, { from: accounts[0] }) // send transaction
             .then(function(tx) {
                 return Promise.all([
                     getEventsPromise(fundingHub.LogProjectCreated({}, { fromBlock: blockNumber, toBlock: "latest"})), // wait for the expected event (filter out other events)
@@ -89,6 +89,52 @@ contract('MarketManager', function(accounts) {
             })
             .then(function(address) {
                 assert.equal(projectContractAddress, address, "deployed address should match mapped address at id 0");
+            });
+    });
+
+    it("should be possible to contribute to a project", function() {
+        var fundingHub = FundingHub.deployed();
+
+        var fundingGoal = 10000000000000000000; // 10 Eth in wei
+        var title = "First Project";
+        var endTime = 1000; // block number
+
+        var contributionAmount = 1000000000000000000 // 1 Eth in wei
+
+        var blockNumber = web3.eth.blockNumber + 1;
+
+        return fundingHub.createProject(fundingGoal, endTime, title, { from: accounts[0] })  // send transaction
+            .then(function(tx) {
+                console.log("project tx: ", tx);
+                return Promise.all([
+                    web3.eth.getTransactionReceiptMined(tx)
+                ]);
+            })
+            .then(function(receipt) {
+                //console.log(receipt);
+                return fundingHub.projects.call(0);
+            })
+            .then(function(contractAddr) {
+                console.log("project address: ", contractAddr);
+                return fundingHub.contribute(contractAddr, { from: accounts[1], value: contributionAmount})
+                    .then(function(tx) {
+                        return Promise.all([
+                            getEventsPromise(fundingHub.LogContributionSent({}, { fromBlock: blockNumber, toBlock: "latest" })), // wait for expected event (filter out other events)
+                            web3.eth.getTransactionReceiptMined(tx), // wait for the transaction to be mined
+                        ]);
+                    })
+                    .then(function (eventAndReceipt) {
+                        var eventArgs = eventAndReceipt[0][0].args;
+                        assert.equal(eventArgs.projectAddress, contractAddr, "event project address should match deployed project address");
+                        assert.equal(eventArgs.contributor, accounts[1], "event contributor should match account address");
+                        assert.equal(eventArgs.amount.valueOf(), contributionAmount, "event amount should match contribution amount");
+
+                        var deployedProject = Project.at(contractAddr);
+                        return deployedProject.totalFunding.call();
+                    })
+                    .then(function (amount) {
+                        assert.equal(amount.valueOf(), contributionAmount, "Project total funding should match only contribution");
+                    });
             });
     });
 });
