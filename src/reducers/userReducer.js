@@ -1,3 +1,8 @@
+import {
+    REQUEST_ACCOUNTS,
+    RECEIVE_ACCOUNTS
+} from '../actions/userActions';
+
 
 const initialState = {
     isFetching: false,
@@ -6,9 +11,19 @@ const initialState = {
     selectedAccount: 0
 }
 
-export default function userReducer(state = {}, action) {
+export default function userReducer(state = initialState, action) {
     switch (action.type) {
-    default:
-      return state
+        case REQUEST_ACCOUNTS:
+            return Object.assign({}, state, {
+                isFetching: true
+            })
+        case RECEIVE_ACCOUNTS:
+            return Object.assign({}, state, {
+                isFetching: false,
+                accounts: action.accounts,
+                coinbase: action.accounts[0]
+            })
+        default:
+            return state;
     }
 }

@@ -1,41 +1,63 @@
 import * as React from 'React';
-import Web3 from 'web3';
+import {connect} from 'react-redux';
+import { fetchAccountsAndBalances } from '../actions/userActions';
+import Header from '../components/header';
+import {Grid, Col, Row} from 'react-bootstrap';
 
-import truffleConfig from '../../truffle.js';
-import {getExtendedWeb3Provider} from '../utils/Utils.js';
+// import Web3 from 'web3';
 
-var web3Location = `http://${truffleConfig.rpc.host}:${truffleConfig.rpc.port}`;
-let web3Provided;
+// import truffleConfig from '../../truffle.js';
+// import {getExtendedWeb3Provider} from '../utils/Utils.js';
 
-/**
-* The AppContainer wraps the entire app and supplies web3 as a prop to all of the child components
-*/ 
+// var web3Location = `http://${truffleConfig.rpc.host}:${truffleConfig.rpc.port}`;
+// let web3Provided;
+
 class AppContainer extends React.Component {
     
     constructor(props) {
         super(props);
-        if (typeof web3 !== 'undefined') {
-            web3Provided = new Web3(web3.currentProvider);
-        } else {
-            web3Provided = new Web3(new Web3.providers.HttpProvider(web3Location));
-        }
+    }
+
+    componentDidMount() {
+        const {dispatch} = this.props;
+        dispatch(fetchAccountsAndBalances());
     }
 
     render() {
-        const {children} = this.props;
+        const {children, user} = this.props;
+
+        let currentUser = {};
+        if (user.accounts.length > 0) {
+            currentUser = user.accounts[user.selectedAccount];
+            console.log("currentuser: ", currentUser);
+        }
+
 
         let content = (
             <div>
-                {React.cloneElement(children, { web3: getExtendedWeb3Provider(web3Provided) })}
+                <Grid>
+                    <Row>
+                        <Col xs={12} md={8}>
+                            {React.cloneElement(children, { user: currentUser })}
+                        </Col>
+                    </Row>
+                </Grid>
             </div>
         );
 
         return (
             <div>
+            <Header accounts={user.accounts}></Header>
             {content}
             </div>
         );
     }
 };
 
-export default AppContainer;
+function mapStateToProps(state) {
+    return {
+        user: state.user
+    }
+}
+
+export default connect(mapStateToProps)(AppContainer);

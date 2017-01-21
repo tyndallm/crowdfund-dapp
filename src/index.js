@@ -3,6 +3,7 @@ import {render} from 'react-dom';
 import {Router, browserHistory} from 'react-router';
 import getRoutes from './config/routes';
 import configureStore from './config/configureStore';
+import { Provider } from 'react-redux'
 
 // import Web3 from 'web3'
 

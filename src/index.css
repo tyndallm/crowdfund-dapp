@@ -7,13 +7,7 @@ body {
 }
 
 body {
-  margin: 0;
-  padding: 0;
   font-family: "Open Sans", "Helvetica Neue", "Helvetica";
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 
