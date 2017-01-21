@@ -8,7 +8,7 @@ contract FundingHub {
 
     mapping (uint => address) public projects;
 
-    event LogProjectCreated(uint id, string title, address addr);
+    event LogProjectCreated(uint id, string title, address addr, address creator);
     event LogContributionSent(address projectAddress, address contributor, uint amount);
 
     modifier onlyOwner {
@@ -26,10 +26,12 @@ contract FundingHub {
     * [0] -> new Project contract address
     */
     function createProject(uint _fundingGoal, uint _deadline, string _title) payable returns (Project projectAddress) {
-        // TODO Check to see if the funding deadline is in the future
-        Project p = new Project(_fundingGoal, _deadline, _title);
+        if (_fundingGoal <= 0) throw;
+        if (block.number >= _deadline) throw;
+
+        Project p = new Project(_fundingGoal, _deadline, _title, msg.sender);
         projects[numOfProjects] = p;
-        LogProjectCreated(numOfProjects, _title, p);
+        LogProjectCreated(numOfProjects, _title, p, msg.sender);
         numOfProjects++;
         return p;
     }
@@ -46,7 +48,7 @@ contract FundingHub {
         Project projectContract = Project(_projectAddress);
 
         // If contract has not been initialized throw
-        if (projectContract.owner() == 0) {
+        if (projectContract.getCreator() == 0) {
             throw;
         }
 

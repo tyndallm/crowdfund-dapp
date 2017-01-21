@@ -61,6 +61,7 @@ contract('FundingHub', function(accounts) {
         var fundingGoal = 10000000000000000000; // 10 Eth in wei
         var title = "First Project";
         var endTime = 1000; // block number
+        var creator = accounts[0]
 
         var blockNumber = web3.eth.blockNumber + 1;
 
@@ -77,6 +78,7 @@ contract('FundingHub', function(accounts) {
                 var eventArgs = eventAndReceipt[0][0].args;
                 assert.equal(eventArgs.id.valueOf(), 0, "should be the first project's id");
                 assert.equal(eventArgs.title, title, "should be the first project's title");
+                assert.equal(eventArgs.creator, creator, "should be the first project's creator");
 
                 projectContractAddress = eventArgs.addr;
 

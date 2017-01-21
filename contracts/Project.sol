@@ -1,23 +1,23 @@
 pragma solidity ^0.4.4;
 
 contract Project {
-    
-    address public owner;
 
-    uint public fundingGoal;
-    uint public deadline;
-    string public title;
-
-    struct Contribution {
-        address contributor;
-        uint amount;
+    struct Properties {
+        uint goal;
+        uint deadline;
+        string title;
+        address creator;
     }
 
-    // TODO Should we keep track of number of contributions?
-    mapping (address => Contribution) public contributions;
+    address public fundingHub;
+
+    mapping (address => uint) public pendingFunding;
 
     uint public totalFunding;
-    uint public numOfContributions;
+    uint public contributionsCount;
+    uint public contributorsCount;
+
+    Properties public properties;
 
     event LogContributionReceived(address projectAddress, address contributor, uint amount);
     event LogPayoutInitiated(address projectAddress, address owner, uint totalPayout);
@@ -25,75 +25,91 @@ contract Project {
     event LogFundingGoalReached(address projectAddress, uint totalFunding, uint totalContributions);
     event LogFundingFailed(address projectAddress, uint totalFunding, uint totalContributions);
 
-    modifier onlyOwner {
-        if (owner != msg.sender) throw;
+    modifier onlyFundingHub {
+        if (fundingHub != msg.sender) throw;
         _;
     }
 
     modifier onlyFailedProject {
         // Deadline should be over
-        if (block.number < deadline) {
+        if (block.number < properties.deadline) {
             throw;
         }
 
         // Funding goal should not have been reached
-        if (totalFunding >= fundingGoal) {
+        if (totalFunding >= properties.goal) {
             throw;
         }
         _;
     }
 
-    function Project(uint _fundingGoal, uint _deadline, string _title) {
-        owner = msg.sender;
-        fundingGoal = _fundingGoal;
-        deadline = _deadline;
-        title = _title;
+    modifier onlyFunded {
+        if (totalFunding < properties.goal) {
+            throw;
+        }
+        _;
+    }
+
+    function Project(uint _fundingGoal, uint _deadline, string _title, address _creator) {
+        // validate parameters
+        if (_fundingGoal <= 0) throw;
+        if (block.number >= _deadline) throw;
+        if (_creator == 0) throw;
+
+        fundingHub = msg.sender;
+
+        properties = Properties({
+            goal: _fundingGoal,
+            deadline: _deadline,
+            title: _title,
+            creator: _creator
+        });
 
         totalFunding = 0;
-        numOfContributions = 0; // TODO if contributions are mapped, what value does this provide?
+        contributionsCount = 0;
+        contributorsCount = 0;
     }
 
     /**
-    * Receives contributions from a FundingHub Contract. Stores contribution information in contributions map.
-    * Returns contributions to inactive Projects to their original sender.
-    * Calls Refund or Payout if criteria is reached upon transaction.
-    * (Optionally could only allow contributions from the creating FundingHub).
+    * This is the function called when the FundingHub receives a contribution. 
+    * The function must keep track of the contributor and the individual amount contributed. 
+    * If the contribution was sent after the deadline of the project passed, 
+    * or the full amount has been reached, the function must return the value 
+    * to the originator of the transaction and call one of two functions. 
+    * If the full funding amount has been reached, the function must call payout. 
+    * If the deadline has passed without the funding goal being reached, the function must call refund.
     */
     function fund(uint _amount, address _contributor) payable returns (bool successful) {
-        // if funding reached, refund sender
-        if (totalFunding >= fundingGoal) {
-            refund()
-            return false;
+        if (_amount <= 0) throw;
+        if (msg.sender != fundingHub) throw; // Force all contributions to be made through fundingHub
+        if (block.number >= properties.deadline) {
+            // refund
+        }
+        if (totalFunding >= properties.goal) {
+            // payout
+            // refund
         }
 
-        // if deadline reached, refund sender
-        if (block.number > deadline) {
-            refund();
-            return false;
-        }
+        uint prevContribution = pendingFunding[_contributor];
 
-        Contribution c = contributions[_contributor]; // Should contributions be mapped by address or index 
-        c.contributor = _contributor;
-        c.amount += _amount; // It's possible that a user contributes more than once
-
+        pendingFunding[_contributor] += _amount;
         totalFunding += _amount;
-        numOfContributions++;
+        contributionsCount++;
+
+        if (prevContribution == 0) {
+            contributorsCount++;
+        }
 
         LogContributionReceived(this, _contributor, _amount);
-
-        // check success criteria
-        if (totalFunding >= fundingGoal) {
-            payout();
-        }
 
         return true;
     }
 
     /**
-    * If funding goal has been met, transfer fund to project owner
+    * If funding goal has been met, transfer fund to project creator
     */
-    function payout() payable returns (bool successful) {
-        if (totalFunding < fundingGoal) {
+    function payout() payable onlyFunded returns (bool successful) {
+        if (totalFunding < properties.goal) {
             throw;
         }
 
@@ -102,7 +118,7 @@ contract Project {
         // prevent re-entrancy
         totalFunding = 0;
 
-        if (owner.send(amount)) {
+        if (properties.creator.send(amount)) {
             return true;
         } else {
             totalFunding = amount;
@@ -114,26 +130,37 @@ contract Project {
 
     /**
     * If the deadline is passed and the goal was not reached, allow contributors to withdraw their contributions
+    * TODO:potential problem! do we want others to be able to refund you on your behalf (Right now anyone could call this function with your address) 
     */
-    function refund() payable onlyFailedProject returns (bool successful) {
-        Contribution c = contributions[msg.sender];
-        uint amount = c.amount;
-
-        // Remember to zero the pending refund before
-        // sending to prevent re-entrancy attack
-        c.amount = 0;
-
-        if (msg.sender.send(amount)) {
-            return true;
-        } else {
-            c.amount = amount;
-            return false;
+    function refund(address _refundAddress) payable onlyFailedProject returns (bool successful) {
+        // Don't allow anyone besides this contract to call refund with your address
+        if (msg.sender != address(this)) {
+            if (msg.sender != _refundAddress) {
+                throw;
+            }
         }
+
+        //Contributor c = contributors[_refundAddress];
+        
+        // prevent re-entrancy attack
+        // uint amount = c.amount;
+        // c.amount = 0;
+
+        // if (_refundAddress.send(amount)) {
+        //     return true;
+        // } else {
+        //     c.amount = amount;
+        //     return false;
+        // }
         return true;
     }
 
-    function kill() public onlyOwner {
-        selfdestruct(owner);
+    function getCreator() returns (address creator){
+        return properties.creator;
+    }
+
+    function kill() public onlyFundingHub {
+        selfdestruct(fundingHub);
     }
 
     /** 
