@@ -71,6 +71,30 @@ contract Project {
     }
 
     /**
+    * Project values are indexed in return value:
+    * [0] -> Project.properties.title
+    * [1] -> Project.properties.goal
+    * [2] -> Project.properties.deadline
+    * [3] -> Project.properties.creator
+    * [4] -> Project.totalFunding
+    * [5] -> Project.contributionsCount
+    * [6] -> Project.contributorsCount
+    * [7] -> Project.fundingHub
+    * [8] -> Project (address)
+    */
+    function getProject() returns (string, uint, uint, address, uint, uint, uint, address, address) {
+        return (properties.title,
+                properties.goal,
+                properties.deadline,
+                properties.creator,
+                totalFunding,
+                contributionsCount,
+                contributorsCount,
+                fundingHub,
+                address(this));
+    }
+
+    /**
     * This is the function called when the FundingHub receives a contribution. 
     * The function must keep track of the contributor and the individual amount contributed. 
     * If the contribution was sent after the deadline of the project passed, 

@@ -4,19 +4,7 @@ import { fetchAccountsAndBalances } from '../actions/userActions';
 import Header from '../components/header';
 import {Grid, Col, Row} from 'react-bootstrap';
 
-// import Web3 from 'web3';
-
-// import truffleConfig from '../../truffle.js';
-// import {getExtendedWeb3Provider} from '../utils/Utils.js';
-
-// var web3Location = `http://${truffleConfig.rpc.host}:${truffleConfig.rpc.port}`;
-// let web3Provided;
-
 class AppContainer extends React.Component {
-    
-    constructor(props) {
-        super(props);
-    }
 
     componentDidMount() {
         const {dispatch} = this.props;
@@ -29,7 +17,6 @@ class AppContainer extends React.Component {
         let currentUser = {};
         if (user.accounts.length > 0) {
             currentUser = user.accounts[user.selectedAccount];
-            console.log("currentuser: ", currentUser);
         }
 
 
@@ -37,7 +24,7 @@ class AppContainer extends React.Component {
             <div>
                 <Grid>
                     <Row>
-                        <Col xs={12} md={8}>
+                        <Col xs={12} md={12}>
                             {React.cloneElement(children, { user: currentUser })}
                         </Col>
                     </Row>
@@ -47,8 +34,8 @@ class AppContainer extends React.Component {
 
         return (
             <div>
-            <Header accounts={user.accounts}></Header>
-            {content}
+                <Header user={user}></Header>
+                {content}
             </div>
         );
     }

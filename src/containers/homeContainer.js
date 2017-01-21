@@ -1,33 +1,56 @@
 import React, { Component, PropTypes } from 'react';
 import {connect} from 'react-redux';
-import { fetchAccountsAndBalances } from '../actions/userActions';
+import {Jumbotron, Button} from 'react-bootstrap';
+import ProjectList from '../components/ProjectList';
+import {fetchProjectsAndDetails, createProject} from "../actions/fundingHubActions";
+
+var _this;
 
 class HomeContainer extends Component {
 
+    constructor(props) {
+        super(props);
+        _this = this;
+    }
+
     componentDidMount() {
-        const { dispatch } = this.props;
-        // dispatch(fetchAccountsAndBalances());
+        const {dispatch} = _this.props;
+        dispatch(fetchProjectsAndDetails());
+    }
+
+    handleCreateProjectClicked() {
+        console.log("Create project clicked");
+        const {dispatch, user} = _this.props;
+        console.log(_this.props);
+        dispatch(createProject(user.address));
     }
 
     render() {
-        console.log(this.props);
+        const {fundingHub} = _this.props;
 
-        let address;
-        if (this.props.user) {
-            address = this.props.user.address;
+        let projects = [];
+
+        if(fundingHub.projects > 0) {
+            projects = fundingHub.projects;
         }
 
         return (
             <div>
-                <p>Hello Ethereum</p>
-                <p>{address}</p>
+                <Jumbotron>
+                    <h1>Hello, Ethereum!</h1>
+                    <p>This is a fully functional decentralized crowdfunding platform built on Ethereum. Below you will see a list of all active crowdfunds you can contribute to.</p>
+                    <p><Button bsStyle="primary" onClick={_this.handleCreateProjectClicked}>Create a project</Button></p>
+                </Jumbotron>
+                <ProjectList projects={projects}/>
             </div>
         )
     }
 }
 
-HomeContainer.propTypes = {
-    user: PropTypes.Object,
-};
+function mapStateToProps(state) {
+    return {
+        fundingHub: state.fundingHub
+    }
+}
 
-export default HomeContainer;
+export default connect(mapStateToProps)(HomeContainer);
