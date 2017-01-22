@@ -75,8 +75,14 @@ export function getProjects() {
                 return getProjectAddress(id);
             }));
 
-            Promise.all(projectPromises).then((projects) => {
-                resolve(projects: projects);
+            Promise.all(projectPromises).then((projectAddresses) => {
+                let projectDetailPromises = projectAddresses.map((address => {
+                    return getProjectDetails(address);
+                }));
+
+                Promise.all(projectDetailPromises).then((projects) => {
+                    resolve(projects);
+                });
             });
         });
     });
@@ -86,9 +92,29 @@ function getProjectAddress(id) {
     return new Promise((resolve, reject) => {
         let fundingHub = FundingHub.deployed();
         fundingHub.projects.call(id).then(function(address) {
-            resolve({address: address});
+            resolve(address);
         });
     });
+}
+
+function getProjectDetails(address) {
+    console.log(address);
+    return new Promise((resolve, reject) => {
+        let project = Project.at(address);
+        project.getProject.call().then(function(projectDetails) {
+            resolve({
+                title: projectDetails[0],
+                goal: projectDetails[1].toNumber(),
+                deadline: projectDetails[2].toNumber(),
+                creator: projectDetails[3],
+                totalFunding: projectDetails[4].toNumber(),
+                contributionsCount: projectDetails[5].toNumber(),
+                contributorsCount: projectDetails[6].toNumber(),
+                fundingHub: projectDetails[7],
+                address: projectDetails[8]
+            });
+        });
+    })
 }
 
 export function createProject(creator) {

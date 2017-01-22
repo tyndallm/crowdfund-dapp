@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import {connect} from 'react-redux';
 import {Jumbotron, Button} from 'react-bootstrap';
-import ProjectList from '../components/ProjectList';
+import ProjectList from '../components/projectList';
 import {fetchProjectsAndDetails, createProject} from "../actions/fundingHubActions";
 
 var _this;
@@ -21,7 +21,6 @@ class HomeContainer extends Component {
     handleCreateProjectClicked() {
         console.log("Create project clicked");
         const {dispatch, user} = _this.props;
-        console.log(_this.props);
         dispatch(createProject(user.address));
     }
 
@@ -30,9 +29,12 @@ class HomeContainer extends Component {
 
         let projects = [];
 
-        if(fundingHub.projects > 0) {
+        if(fundingHub.projects.length > 0) {
             projects = fundingHub.projects;
+            console.log("hello: ", projects);
         }
+
+        console.log(this.props.fundingHub);
 
         return (
             <div>
@@ -41,15 +43,15 @@ class HomeContainer extends Component {
                     <p>This is a fully functional decentralized crowdfunding platform built on Ethereum. Below you will see a list of all active crowdfunds you can contribute to.</p>
                     <p><Button bsStyle="primary" onClick={_this.handleCreateProjectClicked}>Create a project</Button></p>
                 </Jumbotron>
-                <ProjectList projects={projects}/>
+                <ProjectList items={projects}/>
             </div>
         )
     }
-}
+};
 
 function mapStateToProps(state) {
     return {
-        fundingHub: state.fundingHub
+        fundingHub: state.fundingHub,
     }
 }
 

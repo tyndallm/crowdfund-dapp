@@ -46,6 +46,6 @@ export function createProject(creator) {
         dispatch(createProjectSent(creator))
         return Web3Api.createProject(creator)
             .then(txReceipt => dispatch(createProjectSuccess(txReceipt)))
-            .then(dispatch(requestProjects));
+            // .then(fetchProjectsAndDetails()); // TODO this isn't working
     }
 }
