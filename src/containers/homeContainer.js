@@ -4,6 +4,7 @@ import {Jumbotron, Button, Alert} from 'react-bootstrap';
 import ProjectList from '../components/projectList';
 import CreateProjectDialog from '../components/createProjectDialog';
 import {fetchProjectsAndDetails, showCreateProjectModal, createProject} from "../actions/fundingHubActions";
+import {fetchCurrentBlockNumber} from "../actions/userActions";
 
 var _this;
 
@@ -17,13 +18,12 @@ class HomeContainer extends Component {
     componentDidMount() {
         const {dispatch} = _this.props;
         dispatch(fetchProjectsAndDetails());
+        dispatch(fetchCurrentBlockNumber());
     }
 
-    handleCreateProjectClicked() {
-        console.log("Create project clicked");
+    handleProjectBtnClicked() {
         const {dispatch, user} = _this.props;
         dispatch(showCreateProjectModal());
-        //dispatch(createProject(user.address));
     }
 
     render() {
@@ -35,7 +35,7 @@ class HomeContainer extends Component {
             projects = fundingHub.projects;
         }
 
-        console.log(this.props);
+        let currentBlockNum = this.props.currentBlock;
 
         return (
             <div>
@@ -46,13 +46,14 @@ class HomeContainer extends Component {
                 <Jumbotron>
                     <h1>Hello, Ethereum!</h1>
                     <p>This is a fully functional decentralized crowdfunding platform built on Ethereum. Below you will see a list of all active crowdfunding projects you can contribute to.</p>
-                    <p><Button bsStyle="primary" onClick={_this.handleCreateProjectClicked}>Create a project</Button></p>
+                    <p><Button bsStyle="primary" onClick={_this.handleProjectBtnClicked}>Create a project</Button></p>
                 </Jumbotron>
-                <ProjectList items={projects}/>
+                <ProjectList items={projects} currentBlock={currentBlockNum}/>
                 <CreateProjectDialog
                     isOpen={this.props.fundingHub.showCreateModal}
                     userAddress={this.props.user.address}
-                    gasCost={300000} />
+                    gasCost={300000}
+                    currentBlock={currentBlockNum} />
 
             </div>
         )
@@ -62,6 +63,7 @@ class HomeContainer extends Component {
 function mapStateToProps(state) {
     return {
         fundingHub: state.fundingHub,
+        currentBlock: state.user.currentBlock
     }
 }
 

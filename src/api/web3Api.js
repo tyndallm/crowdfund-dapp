@@ -119,9 +119,6 @@ function getProjectDetails(address) {
 
 export function createProject(title, goal, creator, deadline) {
     return new Promise((resolve, reject) => {
-        // let title = "Second funding project";
-        // let goal = 20000000000000000000;
-        // let deadline = web3Client().eth.blockNumber + 100;
 
         let fundingHub = FundingHub.deployed();
         fundingHub.createProject(goal, deadline, title, { from: creator, gas: 3000000 })
@@ -138,9 +135,15 @@ export function createProject(title, goal, creator, deadline) {
     })
 }
 
-// TODO necessary for MetaMask and lite clients
 export function getCurrentBlockNumber() {
-
+    return new Promise((resolve, reject) => {
+        web3Client().eth.getBlockNumber(function (err, blockNum) {
+            if (err) {
+                reject();
+            }
+            resolve(blockNum);
+        });
+    });
 }
 
 

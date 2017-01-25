@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Table} from 'react-bootstrap';
+import {getEtherscanLink} from '../utils/utils';
 
 class ProjectList extends Component {
 
@@ -8,8 +9,8 @@ class ProjectList extends Component {
             <Table responsive>
                 <thead>
                     <tr>
-                        <th>Title</th>
-                        <th>Goal</th>
+                        <th>Project</th>
+                        <th>Funding goal</th>
                         <th>Blocks until deadline</th>
                         <th>Creator</th>
                     </tr>
@@ -19,8 +20,8 @@ class ProjectList extends Component {
                         <tr className={"projectRow"} key={item.address}>
                             <td>{item.title}</td>
                             <td>{item.goal}</td>
-                            <td>{item.deadline}</td>
-                            <td>{item.creator}</td>
+                            <td>{item.deadline - this.props.currentBlock}</td>
+                            <td><a href={getEtherscanLink(item.creator)}>{item.creator}</a></td>
                         </tr>
                     )}
                 </tbody>
@@ -30,7 +31,8 @@ class ProjectList extends Component {
 }
 
 ProjectList.PropTypes = {
-    items: React.PropTypes.array.isRequired
+    items: React.PropTypes.array.isRequired,
+    currentBlock: React.PropTypes.number.isRequired
 }
 
 export default ProjectList;

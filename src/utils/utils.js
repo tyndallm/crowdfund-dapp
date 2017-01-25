@@ -33,3 +33,7 @@ export function getExtendedWeb3Provider(web3Provider) {
 
     return web3Provider;
 }
+
+export function getEtherscanLink(address) {
+    return `https://testnet.etherscan.io/address/${address}`;
+}

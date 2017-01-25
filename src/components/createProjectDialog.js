@@ -1,7 +1,12 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {Modal, Alert, Button, FormGroup, FormControl, ControlLabel, HelpBlock} from 'react-bootstrap';
-import {hideCreateProjectModal, createProject} from "../actions/fundingHubActions";
+import {hideCreateProjectModal, createProject, fetchProjectsAndDetails} from "../actions/fundingHubActions";
+import {getEtherscanLink} from "../utils/utils";
+
+const ONE_DAY_BLOCKS = 5082;
+const ONE_WEEK_BLOCKS = 38117;
+const ONE_MONTH_BLOCKS = 157553
 
 class CreateProjectDialog extends React.Component {
 
@@ -10,8 +15,8 @@ class CreateProjectDialog extends React.Component {
 
         this.state = {
             title: "",
-            goal: 0,
-            deadline: 0
+            goal: 0, // TODO should probably be BigNumber
+            deadline: ONE_DAY_BLOCKS, // minimum length
         };
 
     }
@@ -22,7 +27,9 @@ class CreateProjectDialog extends React.Component {
             this.state.title, 
             this.state.goal, 
             this.props.userAddress, 
-            this.state.deadline));
+            this.state.deadline)).then(() => {
+            dispatch(fetchProjectsAndDetails());
+        });
 
         // close dialog
         dispatch(hideCreateProjectModal());
@@ -31,7 +38,7 @@ class CreateProjectDialog extends React.Component {
         this.state = {
             title: "",
             goal: 0,
-            deadline: 0
+            deadline: ONE_DAY_BLOCKS
         };
     }
 
@@ -51,9 +58,10 @@ class CreateProjectDialog extends React.Component {
 
     handleUpdateDeadline = (event) => {
         event.preventDefault();
-        console.log(event.target.value);
+        let actualDeadline = Number(event.target.value) + this.props.currentBlock;
+        console.log(actualDeadline);
         this.setState({
-            deadline: event.target.value
+            deadline: actualDeadline
         });
     }
 
@@ -84,15 +92,15 @@ class CreateProjectDialog extends React.Component {
                             <FormGroup controlId="creatorAddress">
                                 <ControlLabel>Upon successful funding payout will be made to:</ControlLabel>
                                 <FormControl.Static>
-                                    <a href={"https://testnet.etherscan.io/address/" + this.props.userAddress}>{this.props.userAddress}</a>
+                                    <a href={getEtherscanLink(this.props.userAddress)}>{this.props.userAddress}</a>
                                 </FormControl.Static>
                             </FormGroup>
                             <FormGroup controlId="deadlineSelect">
                                 <ControlLabel>Select deadline (number of blocks from now)</ControlLabel>
                                 <FormControl componentClass="select" onChange={this.handleUpdateDeadline} placeholder="select">
-                                    <option value="5082">~ 1 day (5082 blocks)</option>
-                                    <option value="38117">~ 1 week (38,117 blocks)</option>
-                                    <option value="157553">~ 1 month (157,553 blocks)</option>
+                                    <option value={ONE_DAY_BLOCKS}>~ 1 day (5082 blocks)</option>
+                                    <option value={ONE_WEEK_BLOCKS}>~ 1 week (38,117 blocks)</option>
+                                    <option value={ONE_MONTH_BLOCKS}>~ 1 month (157,553 blocks)</option>
                                 </FormControl>
                             </FormGroup>
                           </form>
@@ -114,7 +122,8 @@ class CreateProjectDialog extends React.Component {
 CreateProjectDialog.PropTypes = {
     isOpen: React.PropTypes.bool.isRequired,
     userAddress: React.PropTypes.string.isRequired,
-    gasCost: React.PropTypes.number.isRequired
+    gasCost: React.PropTypes.number.isRequired,
+    currentBlock: React.PropTypes.number.isRequired
 }
 
 export default connect()(CreateProjectDialog);
