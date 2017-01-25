@@ -5,6 +5,8 @@ export const RECEIVE_PROJECTS = "RECEIVE_PROJECTS";
 export const CREATE_PROJECT_SENT = "CREATE_PROJECT_SENT";
 export const CREATE_PROJECT_SUCCESS = "CREATE_PROJECT_SUCCESS";
 export const CREATE_PROJECT_FAILURE = "CREATE_PROJECT_FAILURE";
+export const SHOW_CREATE_PROJECT_MODAL = "SHOW_CREATE_PROJECT_MODAL";
+export const HIDE_CREATE_PROJECT_MODAL = "HIDE_CREATE_PROJECT_MODAL";
 
 export function requestProjects() {
     return {
@@ -19,7 +21,7 @@ export function receiveProjects(projects) {
     }
 }
 
-export function createProjectSent(creator) {
+export function createProjectSent(title, goal, creator, deadline) {
     return {
         type: CREATE_PROJECT_SENT,
         creator
@@ -33,6 +35,18 @@ export function createProjectSuccess(receipt) {
     }
 }
 
+export function showCreateProjectModal() {
+    return {
+        type: SHOW_CREATE_PROJECT_MODAL
+    }
+}
+
+export function hideCreateProjectModal() {
+    return {
+        type: HIDE_CREATE_PROJECT_MODAL
+    }
+}
+
 export function fetchProjectsAndDetails() {
     return dispatch => {
         dispatch(requestProjects)
@@ -41,10 +55,10 @@ export function fetchProjectsAndDetails() {
     }
 } 
 
-export function createProject(creator) {
+export function createProject(title, goal, creator, deadline) {
     return dispatch => {
-        dispatch(createProjectSent(creator))
-        return Web3Api.createProject(creator)
+        dispatch(createProjectSent(title, goal, creator, deadline))
+        return Web3Api.createProject(title, goal, creator, deadline)
             .then(txReceipt => dispatch(createProjectSuccess(txReceipt)))
             // .then(fetchProjectsAndDetails()); // TODO this isn't working
     }

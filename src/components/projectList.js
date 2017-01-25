@@ -4,13 +4,13 @@ import {Table} from 'react-bootstrap';
 class ProjectList extends Component {
 
     render() {
-        console.log(this.props);
         return (
             <Table responsive>
                 <thead>
                     <tr>
                         <th>Title</th>
                         <th>Goal</th>
+                        <th>Blocks until deadline</th>
                         <th>Creator</th>
                     </tr>
                 </thead>
@@ -19,6 +19,7 @@ class ProjectList extends Component {
                         <tr className={"projectRow"} key={item.address}>
                             <td>{item.title}</td>
                             <td>{item.goal}</td>
+                            <td>{item.deadline}</td>
                             <td>{item.creator}</td>
                         </tr>
                     )}
