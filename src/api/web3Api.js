@@ -146,6 +146,17 @@ export function getCurrentBlockNumber() {
     });
 }
 
+export function getNetwork() {
+    return new Promise((resolve, reject) => {
+        web3Client().version.getNetwork(function (err, network) {
+            if (err) {
+                reject();
+            }
+            resolve(network);
+        })
+    })
+}
+
 
 
 

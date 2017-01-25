@@ -4,6 +4,8 @@ export const REQUEST_ACCOUNTS = "REQUEST_ACCOUNTS";
 export const RECEIVE_ACCOUNTS = "RECEIVE_ACCOUNTS";
 export const REQUEST_BLOCK_NUMBER = "REQUEST_BLOCK_NUMBER";
 export const RECEIVE_BLOCK_NUMBER = "RECEIVE_BLOCK_NUMBER";
+export const REQUEST_NETWORK = "REQUEST_NETWORK";
+export const RECEIVE_NETWORK = "RECEIVE_NETWORK";
 
 export function requestAccounts() {
     return {
@@ -31,6 +33,19 @@ export function receiveBlockNumber(blockNum) {
   }
 }
 
+export function requestNetwork() {
+    return {
+        type: REQUEST_NETWORK
+    }
+}
+
+export function receiveNetwork(network) {
+    return {
+        type: RECEIVE_NETWORK,
+        network: network
+    }
+}
+
 export function fetchAccountsAndBalances() {
     return dispatch => {
         dispatch(requestAccounts)
@@ -40,9 +55,17 @@ export function fetchAccountsAndBalances() {
 } 
 
 export function fetchCurrentBlockNumber() {
-  return dispatch => {
-    dispatch(requestBlockNumber)
-    return Web3Api.getCurrentBlockNumber()
-      .then(blockNum => dispatch(receiveBlockNumber(blockNum)))
-  }
+    return dispatch => {
+        dispatch(requestBlockNumber)
+        return Web3Api.getCurrentBlockNumber()
+            .then(blockNum => dispatch(receiveBlockNumber(blockNum)));
+    }
+}
+
+export function fetchNetwork() {
+    return dispatch => {
+        dispatch(requestNetwork)
+        return Web3Api.getNetwork()
+            .then(network => dispatch(receiveNetwork(network)));
+    }
 }

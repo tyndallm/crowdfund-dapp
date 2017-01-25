@@ -4,7 +4,7 @@ import {Jumbotron, Button, Alert} from 'react-bootstrap';
 import ProjectList from '../components/projectList';
 import CreateProjectDialog from '../components/createProjectDialog';
 import {fetchProjectsAndDetails, showCreateProjectModal, createProject} from "../actions/fundingHubActions";
-import {fetchCurrentBlockNumber} from "../actions/userActions";
+import {fetchCurrentBlockNumber, fetchNetwork} from "../actions/userActions";
 
 var _this;
 
@@ -19,11 +19,46 @@ class HomeContainer extends Component {
         const {dispatch} = _this.props;
         dispatch(fetchProjectsAndDetails());
         dispatch(fetchCurrentBlockNumber());
+        dispatch(fetchNetwork());
     }
 
     handleProjectBtnClicked() {
         const {dispatch, user} = _this.props;
         dispatch(showCreateProjectModal());
+    }
+
+    getNetworkStatusAlert(networkId, currentBlock) {
+        let alertStyle = "info";
+        let networkDisplayName = "network";
+
+        console.log(networkId);
+
+        switch (networkId) {
+            case "1":
+                console.log("inside switch 1");
+                alertStyle = "danger";
+                networkDisplayName = "Mainnet";
+                break;
+            case "2":
+                console.log("inside switch 2");
+                alertStyle = "warning";
+                networkDisplayName = "Morden";
+                break;
+            case "3": 
+                console.log("inside switch 3");
+                alertStyle = "info";
+                networkDisplayName = "Ropsten";
+                break;
+            default:
+                console.log("inside switch default");
+                break;
+        }
+
+        return (
+            <Alert bsStyle={alertStyle}>
+                <strong>Currently on {networkDisplayName} ({networkId})</strong> The current block is {currentBlock}.
+            </Alert>
+        );
     }
 
     render() {
@@ -36,13 +71,13 @@ class HomeContainer extends Component {
         }
 
         let currentBlockNum = this.props.currentBlock;
+        let network = this.props.network;
+        console.log(network);
 
         return (
             <div>
-                <Alert bsStyle="warning">
-                    <strong>Holy guacamole!</strong> Best check yo self, you're not looking too good.
-                </Alert>
                 
+                {_this.getNetworkStatusAlert(network, currentBlockNum)}
                 <Jumbotron>
                     <h1>Hello, Ethereum!</h1>
                     <p>This is a fully functional decentralized crowdfunding platform built on Ethereum. Below you will see a list of all active crowdfunding projects you can contribute to.</p>
@@ -63,7 +98,8 @@ class HomeContainer extends Component {
 function mapStateToProps(state) {
     return {
         fundingHub: state.fundingHub,
-        currentBlock: state.user.currentBlock
+        currentBlock: state.user.currentBlock,
+        network: state.user.network
     }
 }
 
