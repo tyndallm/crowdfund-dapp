@@ -9,9 +9,16 @@ contract Project {
         address creator;
     }
 
+    // TODO would it be useful to have the blockNumber of contribution?
+    struct Contribution {
+        uint amount;
+        address contributor;
+    }
+
     address public fundingHub;
 
     mapping (address => uint) public pendingFunding;
+    mapping (uint => Contribution) public contributions;
 
     uint public totalFunding;
     uint public contributionsCount;
@@ -92,6 +99,16 @@ contract Project {
                 contributorsCount,
                 fundingHub,
                 address(this));
+    }
+
+    /**
+    * Retrieve indiviual contribution information
+    * [0] -> Contribution.amount
+    * [1] -> Contribution.contributor
+    */
+    function getContribution(uint _id) returns (uint, address) {
+        Contribution c = contributions[_id];
+        return (c.amount, c.contributor);
     }
 
     /**

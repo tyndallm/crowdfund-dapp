@@ -97,8 +97,7 @@ function getProjectAddress(id) {
     });
 }
 
-function getProjectDetails(address) {
-    console.log(address);
+export function getProjectDetails(address) {
     return new Promise((resolve, reject) => {
         let project = Project.at(address);
         project.getProject.call().then(function(projectDetails) {
@@ -115,6 +114,42 @@ function getProjectDetails(address) {
             });
         });
     })
+}
+
+function getProjectContributions(address) {
+    return new Promise((resolve, reject) => {
+        let project = Project.at(address);
+        project.contributionsCount.call().then(function(num) {
+            let contributionCount = num.valueOf();
+
+            let array = Array.apply(null, {length: contributionCount}).map(Number.call, Number);
+            let contributionPromises = array.map((id => {
+                return getContribution(address, id);
+            }));
+
+        //     Promise.all(projectPromises).then((projectAddresses) => {
+        //         let projectDetailPromises = projectAddresses.map((address => {
+        //             return getProjectDetails(address);
+        //         }));
+
+        //         Promise.all(projectDetailPromises).then((projects) => {
+        //             resolve(projects);
+        //         });
+        //     });
+        });
+    });
+}
+
+function getContribution(projectAddress, id) {
+    return new Promise((resolve, reject) => {
+        let project = Project.at(projectAddress);
+        project.getContribution.call(id).then(function(contributions) {
+            resolve({
+                amount: contributions[0].toNumber(),
+                contributor: contributions[1]
+            });
+        });
+    });
 }
 
 export function createProject(title, goal, creator, deadline) {

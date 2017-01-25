@@ -31,26 +31,20 @@ class HomeContainer extends Component {
         let alertStyle = "info";
         let networkDisplayName = "network";
 
-        console.log(networkId);
-
         switch (networkId) {
             case "1":
-                console.log("inside switch 1");
                 alertStyle = "danger";
                 networkDisplayName = "Mainnet";
                 break;
             case "2":
-                console.log("inside switch 2");
                 alertStyle = "warning";
                 networkDisplayName = "Morden";
                 break;
             case "3": 
-                console.log("inside switch 3");
                 alertStyle = "info";
                 networkDisplayName = "Ropsten";
                 break;
             default:
-                console.log("inside switch default");
                 break;
         }
 
@@ -72,11 +66,9 @@ class HomeContainer extends Component {
 
         let currentBlockNum = this.props.currentBlock;
         let network = this.props.network;
-        console.log(network);
 
         return (
             <div>
-                
                 {_this.getNetworkStatusAlert(network, currentBlockNum)}
                 <Jumbotron>
                     <h1>Hello, Ethereum!</h1>
@@ -89,7 +81,6 @@ class HomeContainer extends Component {
                     userAddress={this.props.user.address}
                     gasCost={300000}
                     currentBlock={currentBlockNum} />
-
             </div>
         )
     }
