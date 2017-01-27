@@ -170,6 +170,27 @@ export function createProject(title, goal, creator, deadline) {
     })
 }
 
+export function makeContribution(amount, address) {
+    return new Promise((resolve, reject) => {
+        let fundingHub = FundingHub.deployed();
+        fundingHub.contribute(address, { value: amount})
+            .then(function(tx) {
+                console.log("contribution tx: ", tx);
+                return Promise.all([
+                    web3Client().eth.getTransactionReceiptMined(tx)
+                ]);
+            })
+            .then(function(receipt) {
+                console.log("[web3Api.fundingHub.contribute] transaction mined: ", receipt);
+                resolve(receipt);
+            });
+    })
+}
+
+export function withdrawContribution() {
+    // TODO
+}
+
 export function getCurrentBlockNumber() {
     return new Promise((resolve, reject) => {
         web3Client().eth.getBlockNumber(function (err, blockNum) {
@@ -190,6 +211,14 @@ export function getNetwork() {
             resolve(network);
         })
     })
+}
+
+export function toWei(ethValue) {
+    return web3Client().toWei(ethValue, "ether");
+}
+
+export function fromWei(weiValue) {
+    return web3Client().fromWei(weiValue, "ether");
 }
 
 

@@ -124,16 +124,26 @@ contract Project {
         if (_amount <= 0) throw;
         if (msg.sender != fundingHub) throw; // Force all contributions to be made through fundingHub
         if (block.number >= properties.deadline) {
-            // refund
+            // todo: refund
+            throw;
         }
         if (totalFunding >= properties.goal) {
             // payout
             // refund
+            throw;
         }
 
+        // determine if this is a new contributor
         uint prevContribution = pendingFunding[_contributor];
 
+        // Add contribution to map
+        Contribution c = contributions[contributionsCount];
+        c.contributor = _contributor;
+        c.amount = _amount;
+
+        // Add amount to pendingFunding
         pendingFunding[_contributor] += _amount;
+
         totalFunding += _amount;
         contributionsCount++;
 

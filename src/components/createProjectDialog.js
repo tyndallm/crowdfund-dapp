@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import {Modal, Alert, Button, FormGroup, FormControl, ControlLabel, HelpBlock} from 'react-bootstrap';
 import {hideCreateProjectModal, createProject, fetchProjectsAndDetails} from "../actions/fundingHubActions";
 import {getEtherscanLink} from "../utils/utils";
+import {toWei} from '../api/web3Api';
 
 const ONE_DAY_BLOCKS = 5082;
 const ONE_WEEK_BLOCKS = 38117;
@@ -25,7 +26,7 @@ class CreateProjectDialog extends React.Component {
         const {dispatch} = this.props;
         dispatch(createProject(
             this.state.title, 
-            this.state.goal, 
+            toWei(this.state.goal), // convert Eth to Wei for contract
             this.props.userAddress, 
             this.state.deadline)).then(() => {
             dispatch(fetchProjectsAndDetails());
@@ -86,8 +87,8 @@ class CreateProjectDialog extends React.Component {
                               />
                             </FormGroup>
                             <FormGroup controlId="goalInput">
-                                <ControlLabel>Enter a minimum funding goal for payout</ControlLabel>
-                                <FormControl type="number" value={this.state.goal} onChange={this.handleUpdateGoal} placeholder={"Enter a goal in Wei"} />
+                                <ControlLabel>Enter a minimum funding goal for payout (in Ether)</ControlLabel>
+                                <FormControl type="number" value={this.state.goal} onChange={this.handleUpdateGoal} placeholder={"Enter a goal in Ether"} />
                             </FormGroup>
                             <FormGroup controlId="creatorAddress">
                                 <ControlLabel>Upon successful funding payout will be made to:</ControlLabel>
