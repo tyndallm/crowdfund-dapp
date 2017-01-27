@@ -1,3 +1,5 @@
+import {fromWei} from '../api/web3Api';
+
 export function getExtendedWeb3Provider(web3Provider) {
     // Found here https://gist.github.com/xavierlepretre/88682e871f4ad07be4534ae560692ee6
     web3Provider.eth.getTransactionReceiptMined = function (txnHash, interval) {
@@ -36,4 +38,9 @@ export function getExtendedWeb3Provider(web3Provider) {
 
 export function getEtherscanLink(address) {
     return `https://testnet.etherscan.io/address/${address}`;
+}
+
+export function getFormattedUserAccount(address, balance) {
+    let userBalance = parseFloat(fromWei(balance)).toFixed(3);
+    return `${address} - ${userBalance} ETH`;
 }

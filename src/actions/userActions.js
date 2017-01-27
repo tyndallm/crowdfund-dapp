@@ -6,6 +6,7 @@ export const REQUEST_BLOCK_NUMBER = "REQUEST_BLOCK_NUMBER";
 export const RECEIVE_BLOCK_NUMBER = "RECEIVE_BLOCK_NUMBER";
 export const REQUEST_NETWORK = "REQUEST_NETWORK";
 export const RECEIVE_NETWORK = "RECEIVE_NETWORK";
+export const SELECT_ACCOUNT = "SELECT_ACCOUNT";
 
 export function requestAccounts() {
     return {
@@ -43,6 +44,13 @@ export function receiveNetwork(network) {
     return {
         type: RECEIVE_NETWORK,
         network: network
+    }
+}
+
+export function selectAccount(index) {
+    return {
+        type: SELECT_ACCOUNT,
+        index: index
     }
 }
 

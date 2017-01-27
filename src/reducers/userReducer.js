@@ -4,7 +4,8 @@ import {
     REQUEST_BLOCK_NUMBER,
     RECEIVE_BLOCK_NUMBER,
     REQUEST_NETWORK,
-    RECEIVE_NETWORK
+    RECEIVE_NETWORK,
+    SELECT_ACCOUNT
 } from '../actions/userActions';
 
 
@@ -46,6 +47,10 @@ export default function userReducer(state = initialState, action) {
             return Object.assign({}, state, {
                 isFetching: false,
                 network: action.network
+            });
+        case SELECT_ACCOUNT:
+            return Object.assign({}, state, {
+                selectedAccount: action.index
             });
         default:
             return state;
