@@ -21,7 +21,7 @@ class ProjectList extends Component {
                     {this.props.items.map(item => 
                         <tr className={"projectRow"} key={item.address}>
                             <td><a href={"/project/" + item.address}>{item.title}</a></td>
-                            <td>{fromWei(item.goal)}</td>
+                            <td>{fromWei(item.goal)} ETH</td>
                             <td>{item.totalFunding / item.goal}%</td>
                             <td>{item.deadline - this.props.currentBlock}</td>
                             <td><a href={getEtherscanLink(item.creator)}>{item.creator}</a></td>
