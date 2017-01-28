@@ -17,9 +17,9 @@ class ContributionList extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {this.props.items.map(item => 
-                        <tr className={"projectRow"} key={item.address}>
-                            <td><a href={"/project/" + item.address}>{item.address}</a></td>
+                    {this.props.items.map((item, index) => 
+                        <tr className={"projectRow"} key={index}>
+                            <td><a href={getEtherscanLink(item.contributor)}>{item.contributor}</a></td>
                             <td>{fromWei(item.amount)}</td>
                         </tr>
                     )}

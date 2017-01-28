@@ -116,7 +116,7 @@ export function getProjectDetails(address) {
     })
 }
 
-function getProjectContributions(address) {
+export function getProjectContributions(address) {
     return new Promise((resolve, reject) => {
         let project = Project.at(address);
         project.contributionsCount.call().then(function(num) {
@@ -127,15 +127,9 @@ function getProjectContributions(address) {
                 return getContribution(address, id);
             }));
 
-        //     Promise.all(projectPromises).then((projectAddresses) => {
-        //         let projectDetailPromises = projectAddresses.map((address => {
-        //             return getProjectDetails(address);
-        //         }));
-
-        //         Promise.all(projectDetailPromises).then((projects) => {
-        //             resolve(projects);
-        //         });
-        //     });
+            Promise.all(contributionPromises).then((contributions) => {
+                resolve(contributions);
+            });
         });
     });
 }
@@ -143,10 +137,10 @@ function getProjectContributions(address) {
 function getContribution(projectAddress, id) {
     return new Promise((resolve, reject) => {
         let project = Project.at(projectAddress);
-        project.getContribution.call(id).then(function(contributions) {
+        project.getContribution.call(id).then(function(contribution) {
             resolve({
-                amount: contributions[0].toNumber(),
-                contributor: contributions[1]
+                amount: contribution[0].toNumber(),
+                contributor: contribution[1]
             });
         });
     });
@@ -156,7 +150,7 @@ export function createProject(title, goal, creator, deadline) {
     return new Promise((resolve, reject) => {
 
         let fundingHub = FundingHub.deployed();
-        fundingHub.createProject(goal, deadline, title, { from: creator, gas: 3000000 })
+        fundingHub.createProject(goal, deadline, title, { from: creator, gas: 750000 })
             .then(function(tx) {
                 console.log("project tx: ", tx);
                 return Promise.all([
@@ -170,10 +164,10 @@ export function createProject(title, goal, creator, deadline) {
     })
 }
 
-export function makeContribution(amount, address) {
+export function makeContribution(projectAddress, amount, contributorAddress) {
     return new Promise((resolve, reject) => {
         let fundingHub = FundingHub.deployed();
-        fundingHub.contribute(address, { value: amount})
+        fundingHub.contribute(projectAddress, { value: amount, from: contributorAddress, gas: 300000})
             .then(function(tx) {
                 console.log("contribution tx: ", tx);
                 return Promise.all([

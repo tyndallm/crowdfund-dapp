@@ -3,6 +3,11 @@ import {
     RECEIVE_PROJECT,
     REQUEST_CONTRIBUTIONS,
     RECEIVE_CONTRIBUTIONS,
+    SHOW_CONTRIBUTE_PROJECT_MODAL,
+    HIDE_CONTRIBUTE_PROJECT_MODAL,
+    CONTRIBUTION_SENT,
+    CONTRIBUTION_SUCCESS,
+    CONTRIBUTION_FAILURE
 } from '../actions/projectActions';
 
 
@@ -17,7 +22,8 @@ const initialState = {
     creator: "0x0",
     title: "",
     contributions: [],
-    fundingHub: "0x0"
+    fundingHub: "0x0",
+    showContributeModal: false
 }
 
 export default function projectReducer(state = initialState, action) {
@@ -47,6 +53,22 @@ export default function projectReducer(state = initialState, action) {
             return Object.assign({}, state, {
                 isFetching: false,
                 contributions: action.contributions
+            });
+        case SHOW_CONTRIBUTE_PROJECT_MODAL:
+            return Object.assign({}, state, {
+                showContributeModal: true
+            });
+        case HIDE_CONTRIBUTE_PROJECT_MODAL:
+            return Object.assign({}, state, {
+                showContributeModal: false
+            });
+        case CONTRIBUTION_SENT:
+            return Object.assign({}, state, {
+                isFetching: true
+            });
+        case CONTRIBUTION_SUCCESS:
+            return Object.assign({}, state, {
+                isFetching: false
             });
         default:
             return state;
