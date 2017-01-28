@@ -53,7 +53,7 @@ class ProjectContainer extends Component {
                     <Panel header="Project Stats" bsStyle="success">
                         <ListGroup fill>
                             <ListGroupItem>Address: <a href={getEtherscanLink(project.address)}>{project.address}</a></ListGroupItem>
-                            <ListGroupItem>Raised: {fromWei(project.totalFunding)}/{fromWei(project.fundingGoal)} Ether</ListGroupItem>
+                            <ListGroupItem>Raised: {fromWei(project.totalFunding)}/{fromWei(project.fundingGoal)} ETH</ListGroupItem>
                             <ListGroupItem>Remaining blocks: {project.deadline - this.props.currentBlock}</ListGroupItem>
                             <ListGroupItem>Contributors: {project.contributorsCount}</ListGroupItem>
                             <ListGroupItem>Contributions: {project.contributionsCount}</ListGroupItem>

@@ -13,7 +13,7 @@ class ContributionList extends Component {
                 <thead>
                     <tr>
                         <th>Address</th>
-                        <th>Amount</th>
+                        <th>Amount (ETH)</th>
                     </tr>
                 </thead>
                 <tbody>

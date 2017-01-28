@@ -42,7 +42,7 @@ export function getEtherscanLink(address) {
 
 export function getFormattedUserAccount(address, balance) {
     let userBalance = parseFloat(fromWei(balance)).toFixed(3);
-    return `${address} - ${userBalance} ETH`;
+    return `${address} (${userBalance} ETH)`;
 }
 
 export function getFormattedProgressPercentage(fundingRaised, fundingGoal) {

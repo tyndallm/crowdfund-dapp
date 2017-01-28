@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {Modal, Alert, Button, FormGroup, FormControl, ControlLabel, HelpBlock} from 'react-bootstrap';
 import {hideContributeProjectModal, makeContribution, fetchContributions, fetchProject} from '../actions/projectActions';
+import {fetchAccountsAndBalances} from '../actions/userActions';
 import {getEtherscanLink} from "../utils/utils";
 import {toWei} from '../api/web3Api';
 
@@ -28,6 +29,7 @@ class ContributeProjectDialog extends React.Component {
         .then(() => {
             dispatch(fetchContributions(this.props.projectAddress));
             dispatch(fetchProject(this.props.projectAddress));
+            dispatch(fetchAccountsAndBalances());
         });
 
         // close dialog

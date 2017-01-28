@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {Modal, Alert, Button, FormGroup, FormControl, ControlLabel, HelpBlock} from 'react-bootstrap';
 import {hideCreateProjectModal, createProject, fetchProjectsAndDetails} from "../actions/fundingHubActions";
+import {fetchAccountsAndBalances} from '../actions/userActions';
 import {getEtherscanLink} from "../utils/utils";
 import {toWei} from '../api/web3Api';
 
@@ -28,8 +29,10 @@ class CreateProjectDialog extends React.Component {
             this.state.title, 
             toWei(this.state.goal), // convert Eth to Wei for contract
             this.props.userAddress, 
-            this.state.deadline)).then(() => {
+            this.state.deadline))
+        .then(() => {
             dispatch(fetchProjectsAndDetails());
+            dispatch(fetchAccountsAndBalances());
         });
 
         // close dialog
