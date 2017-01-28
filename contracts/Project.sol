@@ -20,7 +20,7 @@ contract Project {
     mapping (address => uint) public pendingFunding;
     mapping (uint => Contribution) public contributions;
 
-    uint public totalFunding;
+    uint public totalFunding; // for display
     uint public contributionsCount;
     uint public contributorsCount;
 
@@ -124,12 +124,13 @@ contract Project {
         if (_amount <= 0) throw;
         if (msg.sender != fundingHub) throw; // Force all contributions to be made through fundingHub
         if (block.number >= properties.deadline) {
-            // todo: refund
+            // TODO: return to sender
+            // TODO: refund other senders
             throw;
         }
         if (totalFunding >= properties.goal) {
-            // payout
-            // refund
+            // TODO: return to sender
+            // TODO: payout to creator
             throw;
         }
 
@@ -160,10 +161,6 @@ contract Project {
     * If funding goal has been met, transfer fund to project creator
     */
     function payout() payable onlyFunded returns (bool successful) {
-        if (totalFunding < properties.goal) {
-            throw;
-        }
-
         uint amount = totalFunding;
 
         // prevent re-entrancy
@@ -206,9 +203,9 @@ contract Project {
         return true;
     }
 
-    function getCreator() returns (address creator){
-        return properties.creator;
-    }
+    // function getCreator() returns (address creator){
+    //     return properties.creator;
+    // }
 
     function kill() public onlyFundingHub {
         selfdestruct(fundingHub);

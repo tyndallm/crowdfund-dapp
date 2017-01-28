@@ -1,5 +1,3 @@
-import {createProject} from '../src/api/web3Api';
-
 contract('Project', function(accounts) {
     
     it("should start with owner, fundingGoal, and deadline", function() {
