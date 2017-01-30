@@ -15,7 +15,7 @@ const initialState = {
     coinbase: "",
     selectedAccount: 0,
     currentBlock: 0,
-    network: ""
+    network: "",
 }
 
 export default function userReducer(state = initialState, action) {

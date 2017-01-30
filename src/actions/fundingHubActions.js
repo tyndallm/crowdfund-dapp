@@ -7,6 +7,8 @@ export const CREATE_PROJECT_SUCCESS = "CREATE_PROJECT_SUCCESS";
 export const CREATE_PROJECT_FAILURE = "CREATE_PROJECT_FAILURE";
 export const SHOW_CREATE_PROJECT_MODAL = "SHOW_CREATE_PROJECT_MODAL";
 export const HIDE_CREATE_PROJECT_MODAL = "HIDE_CREATE_PROJECT_MODAL";
+export const REQUEST_FUNDINGHUB_BALANCE = "REQUEST_FUNDINGHUB_BALANCE";
+export const RECEIVE_FUNDINGHUB_BALANCE = "RECEIVE_FUNDINGHUB_BALANCE";
 
 export function requestProjects() {
     return {
@@ -47,6 +49,20 @@ export function hideCreateProjectModal() {
     }
 }
 
+
+export function requestFundingHubBalance(contractAddr) {
+    return {
+        type: REQUEST_FUNDINGHUB_BALANCE
+    }
+}
+
+export function receiveFundingHubBalance(balance) {
+    return {
+        type: RECEIVE_FUNDINGHUB_BALANCE,
+        balance: balance
+    }
+}
+
 export function fetchProjectsAndDetails() {
     return dispatch => {
         dispatch(requestProjects)
@@ -61,5 +77,14 @@ export function createProject(title, goal, creator, deadline) {
         return Web3Api.createProject(title, goal, creator, deadline)
             .then(txReceipt => dispatch(createProjectSuccess(txReceipt)))
             // .then(fetchProjectsAndDetails()); // TODO this isn't working
+    }
+}
+
+export function fetchFundingHubBalance() {
+    let contractAddr = Web3Api.getFundingHubAddress();
+    return dispatch => {
+        dispatch(requestFundingHubBalance(contractAddr))
+        return Web3Api.getAccountBalance(contractAddr)
+            .then(balance => dispatch(receiveFundingHubBalance(balance)));
     }
 }

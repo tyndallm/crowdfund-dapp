@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import {connect} from 'react-redux';
-import {fetchProject, showContributeProjectModal, fetchContributions} from '../actions/projectActions';
+import {fetchProject, showContributeProjectModal, fetchContributions, fetchProjectBalance} from '../actions/projectActions';
 import {fetchCurrentBlockNumber} from '../actions/userActions';
 import {Grid, Row, Col, Jumbotron, Button, Panel, ListGroup, ListGroupItem, ProgressBar} from 'react-bootstrap';
 import ContributionList from '../components/contributionList';
@@ -22,6 +22,7 @@ class ProjectContainer extends Component {
         dispatch(fetchProject(params.address));
         dispatch(fetchContributions(params.address));
         dispatch(fetchCurrentBlockNumber());
+        dispatch(fetchProjectBalance(params.address));
     }
 
     handleContributeBtnClicked() {
@@ -58,6 +59,7 @@ class ProjectContainer extends Component {
                             <ListGroupItem>Contributors: {project.contributorsCount}</ListGroupItem>
                             <ListGroupItem>Contributions: {project.contributionsCount}</ListGroupItem>
                             <ListGroupItem>Creator: <a href={getEtherscanLink(project.creator)}>{project.creator}</a></ListGroupItem>
+                            <ListGroupItem>Balance: {fromWei(project.balance) + " ETH"}</ListGroupItem>
                             <ListGroupItem>Request refund <Button bsStyle="danger" disabled>Withdraw</Button></ListGroupItem>
                         </ListGroup>
                     </Panel>

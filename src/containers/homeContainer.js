@@ -47,7 +47,7 @@ class HomeContainer extends Component {
                 <CreateProjectDialog
                     isOpen={this.props.fundingHub.showCreateModal}
                     userAddress={this.props.user.address}
-                    gasCost={750000}
+                    gasCost={3000000}
                     currentBlock={currentBlockNum} />
             </div>
         )

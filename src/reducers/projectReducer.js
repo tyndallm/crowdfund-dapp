@@ -7,7 +7,9 @@ import {
     HIDE_CONTRIBUTE_PROJECT_MODAL,
     CONTRIBUTION_SENT,
     CONTRIBUTION_SUCCESS,
-    CONTRIBUTION_FAILURE
+    CONTRIBUTION_FAILURE,
+    REQUEST_PROJECT_BALANCE,
+    RECEIVE_PROJECT_BALANCE
 } from '../actions/projectActions';
 
 
@@ -23,7 +25,8 @@ const initialState = {
     title: "",
     contributions: [],
     fundingHub: "0x0",
-    showContributeModal: false
+    showContributeModal: false,
+    balance: 0
 }
 
 export default function projectReducer(state = initialState, action) {
@@ -69,6 +72,15 @@ export default function projectReducer(state = initialState, action) {
         case CONTRIBUTION_SUCCESS:
             return Object.assign({}, state, {
                 isFetching: false
+            });
+        case REQUEST_PROJECT_BALANCE:
+            return Object.assign({}, state, {
+                isFetching: true
+            });
+        case RECEIVE_PROJECT_BALANCE:
+            return Object.assign({}, state, {
+                isFetching: false,
+                balance: action.balance
             });
         default:
             return state;

@@ -19,9 +19,6 @@ class ContributeProjectDialog extends React.Component {
     handleContributeToProject = (event) => {
         const {dispatch} = this.props;
 
-        console.log("contribution ETH: ", this.state.amount);
-        console.log("contribution WEI: ", toWei(this.state.amount));
-
         dispatch(makeContribution(
             this.props.projectAddress,
             toWei(this.state.amount), // convert Eth to Wei for contract

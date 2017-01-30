@@ -9,7 +9,6 @@ contract Project {
         address creator;
     }
 
-    // TODO would it be useful to have the blockNumber of contribution?
     struct Contribution {
         uint amount;
         address contributor;
@@ -17,10 +16,10 @@ contract Project {
 
     address public fundingHub;
 
-    mapping (address => uint) public pendingFunding;
+    mapping (address => uint) public contributors;
     mapping (uint => Contribution) public contributions;
 
-    uint public totalFunding; // for display
+    uint public totalFunding;
     uint public contributionsCount;
     uint public contributorsCount;
 
@@ -32,21 +31,10 @@ contract Project {
     event LogFundingGoalReached(address projectAddress, uint totalFunding, uint totalContributions);
     event LogFundingFailed(address projectAddress, uint totalFunding, uint totalContributions);
 
+    event LogFailure(string message);
+
     modifier onlyFundingHub {
         if (fundingHub != msg.sender) throw;
-        _;
-    }
-
-    modifier onlyFailedProject {
-        // Deadline should be over
-        if (block.number < properties.deadline) {
-            throw;
-        }
-
-        // Funding goal should not have been reached
-        if (totalFunding >= properties.goal) {
-            throw;
-        }
         _;
     }
 
@@ -58,13 +46,28 @@ contract Project {
     }
 
     function Project(uint _fundingGoal, uint _deadline, string _title, address _creator) {
-        // validate parameters
-        if (_fundingGoal <= 0) throw;
-        if (block.number >= _deadline) throw;
-        if (_creator == 0) throw;
+
+        // Check to see the funding goal is greater than 0
+        if (_fundingGoal <= 0) {
+            LogFailure("Project funding goal must be greater than 0");
+            throw;
+        }
+
+        // Check to see the deadline is in the future
+        if (block.number >= _deadline) {
+            LogFailure("Project deadline must be greater than the current block");
+            throw;
+        }
+
+        // Check to see that a creator (payout) address is valid
+        if (_creator == 0) {
+            LogFailure("Project must include a valid creator address");
+            throw;
+        }
 
         fundingHub = msg.sender;
 
+        // initialize properties struct
         properties = Properties({
             goal: _fundingGoal,
             deadline: _deadline,
@@ -113,52 +116,80 @@ contract Project {
 
     /**
     * This is the function called when the FundingHub receives a contribution. 
-    * The function must keep track of the contributor and the individual amount contributed. 
     * If the contribution was sent after the deadline of the project passed, 
     * or the full amount has been reached, the function must return the value 
-    * to the originator of the transaction and call one of two functions. 
+    * to the originator of the transaction. 
     * If the full funding amount has been reached, the function must call payout. 
-    * If the deadline has passed without the funding goal being reached, the function must call refund.
+    * [0] -> contribution was made
     */
-    function fund(uint _amount, address _contributor) payable returns (bool successful) {
-        if (_amount <= 0) throw;
-        if (msg.sender != fundingHub) throw; // Force all contributions to be made through fundingHub
-        if (block.number >= properties.deadline) {
-            // TODO: return to sender
-            // TODO: refund other senders
+    function fund(address _contributor) payable returns (bool successful) {
+
+        // Check amount is greater than 0
+        if (msg.value <= 0) {
+            LogFailure("Funding contributions must be greater than 0 wei");
             throw;
         }
-        if (totalFunding >= properties.goal) {
-            // TODO: return to sender
-            // TODO: payout to creator
+
+        // Check funding only comes thru fundingHub
+        if (msg.sender != fundingHub) {
+            LogFailure("Funding contributions can only be made through FundingHub contract");
             throw;
+        }
+
+        // 1. Check that the project dealine has not passed
+        if (block.number >= properties.deadline) {
+            LogFundingFailed(address(this), totalFunding, contributionsCount);
+            if (!_contributor.send(msg.value)) {
+                LogFailure("Project deadline has passed, problem returning contribution");
+                throw;
+            } 
+            return false;
+        }
+
+        // 2. Check that funding goal has not already been met
+        if (totalFunding >= properties.goal) {
+            LogFundingGoalReached(address(this), totalFunding, contributionsCount);
+            if (!_contributor.send(msg.value)) {
+                LogFailure("Project deadline has passed, problem returning contribution");
+                throw;
+            }
+            payout();
+            return false;
         }
 
         // determine if this is a new contributor
-        uint prevContribution = pendingFunding[_contributor];
+        uint prevContributionBalance = contributors[_contributor];
 
-        // Add contribution to map
+        // Add contribution to contributions map
         Contribution c = contributions[contributionsCount];
         c.contributor = _contributor;
-        c.amount = _amount;
+        c.amount = msg.value;
 
-        // Add amount to pendingFunding
-        pendingFunding[_contributor] += _amount;
+        // Update contributor's balance
+        contributors[_contributor] += msg.value;
 
-        totalFunding += _amount;
+        totalFunding += msg.value;
         contributionsCount++;
 
-        if (prevContribution == 0) {
+        // Check if contributor is new and if so increase count
+        if (prevContributionBalance == 0) {
             contributorsCount++;
         }
 
-        LogContributionReceived(this, _contributor, _amount);
+        LogContributionReceived(this, _contributor, msg.value);
+
+        // Check again to see whether the last contribution met the fundingGoal 
+        if (totalFunding >= properties.goal) {
+            LogFundingGoalReached(address(this), totalFunding, contributionsCount);
+            payout();
+        }
 
         return true;
     }
 
     /**
     * If funding goal has been met, transfer fund to project creator
+    * [0] -> payout was successful
     */
     function payout() payable onlyFunded returns (bool successful) {
         uint amount = totalFunding;
@@ -177,35 +208,37 @@ contract Project {
     }
 
     /**
-    * If the deadline is passed and the goal was not reached, allow contributors to withdraw their contributions
-    * TODO:potential problem! do we want others to be able to refund you on your behalf (Right now anyone could call this function with your address) 
+    * If the deadline is passed and the goal was not reached, allow contributors to withdraw their contributions.
+    * This is slightly different that the final project requirements, see README for details
+    * [0] -> refund was successful
     */
-    function refund(address _refundAddress) payable onlyFailedProject returns (bool successful) {
-        // Don't allow anyone besides this contract to call refund with your address
-        if (msg.sender != address(this)) {
-            if (msg.sender != _refundAddress) {
-                throw;
-            }
+    function refund() payable returns (bool successful) {
+
+        // Check that the project dealine has passed
+        if (block.number < properties.deadline) {
+            LogFailure("Refund is only possible if project is past deadline");
+            throw;
         }
 
-        //Contributor c = contributors[_refundAddress];
-        
-        // prevent re-entrancy attack
-        // uint amount = c.amount;
-        // c.amount = 0;
+        // Check that funding goal has not already been met
+        if (totalFunding >= properties.goal) {
+            LogFailure("Refund is not possible if project has met goal");
+            throw;
+        }
 
-        // if (_refundAddress.send(amount)) {
-        //     return true;
-        // } else {
-        //     c.amount = amount;
-        //     return false;
-        // }
+        uint amount = contributors[msg.sender];
+        
+        //prevent re-entrancy attack
+        contributors[msg.sender] = 0;
+
+        if (msg.sender.send(amount)) {
+            return true;
+        } else {
+            contributors[msg.sender] = amount;
+            return false;
+        }
         return true;
     }
-
-    // function getCreator() returns (address creator){
-    //     return properties.creator;
-    // }
 
     function kill() public onlyFundingHub {
         selfdestruct(fundingHub);

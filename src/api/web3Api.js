@@ -56,7 +56,7 @@ export function getAccounts() {
     });
 }
 
-function getAccountBalance(account) {
+export function getAccountBalance(account) {
     return new Promise((resolve, reject) => {
         web3Client().eth.getBalance(account, function(err, value) {
             resolve(value.valueOf());
@@ -150,7 +150,7 @@ export function createProject(title, goal, creator, deadline) {
     return new Promise((resolve, reject) => {
 
         let fundingHub = FundingHub.deployed();
-        fundingHub.createProject(goal, deadline, title, { from: creator, gas: 750000 })
+        fundingHub.createProject(goal, deadline, title, { from: creator, gas: 1000000 })
             .then(function(tx) {
                 console.log("project tx: ", tx);
                 return Promise.all([
@@ -167,7 +167,7 @@ export function createProject(title, goal, creator, deadline) {
 export function makeContribution(projectAddress, amount, contributorAddress) {
     return new Promise((resolve, reject) => {
         let fundingHub = FundingHub.deployed();
-        fundingHub.contribute(projectAddress, { value: amount, from: contributorAddress, gas: 300000})
+        fundingHub.contribute(projectAddress, { value: amount, from: contributorAddress, gas: 3000000})
             .then(function(tx) {
                 console.log("contribution tx: ", tx);
                 return Promise.all([
@@ -214,6 +214,13 @@ export function toWei(ethValue) {
 export function fromWei(weiValue) {
     return web3Client().fromWei(weiValue, "ether");
 }
+
+export function getFundingHubAddress() {
+    let address = FundingHub.deployed().address;
+    console.log(address);
+    return address;
+}
+
 
 
 

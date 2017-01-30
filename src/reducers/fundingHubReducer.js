@@ -4,14 +4,17 @@ import {
     CREATE_PROJECT_SENT,
     CREATE_PROJECT_SUCCESSFUL,
     SHOW_CREATE_PROJECT_MODAL,
-    HIDE_CREATE_PROJECT_MODAL
+    HIDE_CREATE_PROJECT_MODAL,
+    REQUEST_FUNDINGHUB_BALANCE,
+    RECEIVE_FUNDINGHUB_BALANCE
 } from '../actions/fundingHubActions';
 
 
 const initialState = {
     isFetching: false,
     projects: [],
-    showCreateModal: false
+    showCreateModal: false,
+    balance: 0
 }
 
 export default function fundingHubReducer(state = initialState, action) {
@@ -40,6 +43,15 @@ export default function fundingHubReducer(state = initialState, action) {
         case HIDE_CREATE_PROJECT_MODAL:
             return Object.assign({}, state, {
                 showCreateModal: false
+            });
+        case REQUEST_FUNDINGHUB_BALANCE:
+            return Object.assign({}, state, {
+                isFetching: true
+            });
+        case RECEIVE_FUNDINGHUB_BALANCE:
+            return Object.assign({}, state, {
+                isFetching: false,
+                balance: action.balance,
             });
         default:
             return state;

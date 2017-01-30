@@ -63,7 +63,6 @@ class CreateProjectDialog extends React.Component {
     handleUpdateDeadline = (event) => {
         event.preventDefault();
         let actualDeadline = Number(event.target.value) + this.props.currentBlock;
-        console.log(actualDeadline);
         this.setState({
             deadline: actualDeadline
         });

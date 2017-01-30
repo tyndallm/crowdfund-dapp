@@ -9,6 +9,8 @@ export const HIDE_CONTRIBUTE_PROJECT_MODAL = "HIDE_CONTRIBUTE_PROJECT_MODAL";
 export const CONTRIBUTION_SENT = "CONTRIBUTION_SENT";
 export const CONTRIBUTION_SUCCESS = "CONTRIBUTION_SUCCESS";
 export const CONTRIBUTION_FAILURE = "CONTRIBUTION_FAILURE";
+export const REQUEST_PROJECT_BALANCE = "REQUEST_PROJECT_BALANCE";
+export const RECEIVE_PROJECT_BALANCE = "RECEIEVE_PROJECT_BALANCE";
 
 export function requestProject(address) {
     return {
@@ -61,6 +63,19 @@ export function contributionSuccess(receipt) {
     }
 }
 
+export function requestProjectBalance(contractAddr) {
+    return {
+        type: REQUEST_PROJECT_BALANCE
+    }
+}
+
+export function receiveProjectBalance(balance) {
+    return {
+        type: RECEIVE_PROJECT_BALANCE,
+        balance: balance
+    }
+}
+
 export function fetchProject(address) {
     return dispatch => {
         dispatch(requestProject)
@@ -83,5 +98,13 @@ export function makeContribution(projectAddress, amount, contributorAddress) {
         dispatch(contributionSent(projectAddress, amount, contributorAddress))
         return Web3Api.makeContribution(projectAddress, amount, contributorAddress)
             .then(txReceipt => dispatch(contributionSuccess(txReceipt)))
+    }
+}
+
+export function fetchProjectBalance(contractAddr) {
+    return dispatch => {
+        dispatch(requestProjectBalance(contractAddr))
+        return Web3Api.getAccountBalance(contractAddr)
+            .then(balance => dispatch(receiveProjectBalance(balance)));
     }
 }

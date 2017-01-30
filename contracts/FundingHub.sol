@@ -11,6 +11,8 @@ contract FundingHub {
     event LogProjectCreated(uint id, string title, address addr, address creator);
     event LogContributionSent(address projectAddress, address contributor, uint amount);
 
+    event LogFailure(string message);
+
     modifier onlyOwner {
         if (owner != msg.sender) throw;
         _;
@@ -26,8 +28,16 @@ contract FundingHub {
     * [0] -> new Project contract address
     */
     function createProject(uint _fundingGoal, uint _deadline, string _title) payable returns (Project projectAddress) {
-        if (_fundingGoal <= 0) throw;
-        if (block.number >= _deadline) throw;
+
+        if (_fundingGoal <= 0) {
+            LogFailure("Project funding goal must be greater than 0");
+            throw;
+        }
+
+        if (block.number >= _deadline) {
+            LogFailure("Project deadline must be greater than the current block");
+            throw;
+        }
 
         Project p = new Project(_fundingGoal, _deadline, _title, msg.sender);
         projects[numOfProjects] = p;
@@ -37,25 +47,34 @@ contract FundingHub {
     }
 
     /**
-    * Allow senders to contribute to a Project by it's address. Calls the fund() function in the individual 
-    * Project contract and passes on all value attached to this function call
+    * Allow senders to contribute to a Project by it's address. Calls the fund() function in the Project 
+    * contract and passes on all value attached to this function call
     * [0] -> contribution was sent 
     */
     function contribute(address _projectAddress) payable returns (bool successful) { 
-        // If no amount is sent throw
-        if (msg.value <= 0) throw;
 
-        Project projectContract = Project(_projectAddress);
-
-        // If contract has not been initialized throw
-        if (projectContract.getCreator() == 0) {
+        // Check amount sent is greater than 0
+        if (msg.value <= 0) {
+            LogFailure("Contributions must be greater than 0 wei");
             throw;
         }
 
-        // Send 
-        projectContract.fund(msg.value, msg.sender);
-        LogContributionSent(_projectAddress, msg.sender, msg.value);
-        return true;
+        Project deployedProject = Project(_projectAddress);
+
+        // Check that there is actually a Project contract at that address
+        if (deployedProject.fundingHub() == address(0)) {
+            LogFailure("Project contract not found at address");
+            throw;
+        }
+
+        // Check that fund call was successful
+        if (deployedProject.fund.value(msg.value)(msg.sender)) {
+            LogContributionSent(_projectAddress, msg.sender, msg.value);
+            return true;
+        } else {
+            LogFailure("Contribution did not send successfully");
+            return false;
+        }
     }
 
     function kill() public onlyOwner {
