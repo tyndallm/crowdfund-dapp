@@ -44,81 +44,36 @@ var getEventsPromise = function (myFilter, count) {
 
 contract('FundingHub', function(accounts) {
     
-    it("should start with an empty project list", function() {
+    it("should be possible to create, contribute, and refund a project", function() {
         var fundingHub = FundingHub.deployed();
 
-        return fundingHub.numOfProjects.call()
-            .then(function(count) {
-                assert.equal(count.valueOf(), 0, "should start with no projects");
-            });
-    });
-
-    var projectContractAddress;
-
-    it("should be possible to create a project", function() {
-        var fundingHub = FundingHub.deployed();
+        var startingBlock = web3.eth.blockNumber;
 
         var fundingGoal = 10000000000000000000; // 10 Eth in wei
         var title = "First Project";
-        var endTime = 1000; // block number
-        var creator = accounts[0]
+        var endTime = startingBlock + 2 ; // block number
+
+        var contributor = accounts[1];
+        var contributorStartBalance = web3.eth.getBalance(accounts[1]);
+        var contributionAmount = web3.toWei(1, "ether"); //1000000000000000000 // 1 Eth in wei
 
         var blockNumber = web3.eth.blockNumber + 1;
+        
+        var deployedProject;
 
-        return fundingHub.createProject(fundingGoal, endTime, title, { from: accounts[0] }) // send transaction
-            .then(function(tx) {
-                return Promise.all([
-                    getEventsPromise(fundingHub.LogProjectCreated({}, { fromBlock: blockNumber, toBlock: "latest"})), // wait for the expected event (filter out other events)
-                    web3.eth.getTransactionReceiptMined(tx), // wait for the transaction to be mined
-                ]);    
-            })
-            .then(function (eventAndReceipt) {
-                // var event = eventAndReceipt[0]
-                // var receipt = eventAndReceipt[1]
-                var eventArgs = eventAndReceipt[0][0].args;
-                assert.equal(eventArgs.id.valueOf(), 0, "should be the first project's id");
-                assert.equal(eventArgs.title, title, "should be the first project's title");
-                assert.equal(eventArgs.creator, creator, "should be the first project's creator");
-
-                projectContractAddress = eventArgs.addr;
-
-                return fundingHub.numOfProjects.call();
-            })
-            .then(function(count) {
-                assert.equal(count.valueOf(), 1, "should have added a project");
-
-                return fundingHub.projects.call(0); // Retrieve Project with id 0
-            })
-            .then(function(address) {
-                assert.equal(projectContractAddress, address, "deployed address should match mapped address at id 0");
-            });
-    });
-
-    it("should be possible to contribute to a project", function() {
-        var fundingHub = FundingHub.deployed();
-
-        var fundingGoal = 10000000000000000000; // 10 Eth in wei
-        var title = "First Project";
-        var endTime = 1000; // block number
-
-        var contributionAmount = 1000000000000000000 // 1 Eth in wei
-
-        var blockNumber = web3.eth.blockNumber + 1;
-
+        // 1. Create a Project
         return fundingHub.createProject(fundingGoal, endTime, title, { from: accounts[0] })  // send transaction
             .then(function(tx) {
-                console.log("project tx: ", tx);
                 return Promise.all([
                     web3.eth.getTransactionReceiptMined(tx)
                 ]);
             })
             .then(function(receipt) {
-                //console.log(receipt);
                 return fundingHub.projects.call(0);
             })
             .then(function(contractAddr) {
-                console.log("project address: ", contractAddr);
-                return fundingHub.contribute(contractAddr, { from: accounts[1], value: contributionAmount})
+                // 2. Contribute to Project
+                return fundingHub.contribute(contractAddr, { from: contributor, value: contributionAmount, gas: 3000000})
                     .then(function(tx) {
                         return Promise.all([
                             getEventsPromise(fundingHub.LogContributionSent({}, { fromBlock: blockNumber, toBlock: "latest" })), // wait for expected event (filter out other events)
@@ -128,14 +83,29 @@ contract('FundingHub', function(accounts) {
                     .then(function (eventAndReceipt) {
                         var eventArgs = eventAndReceipt[0][0].args;
                         assert.equal(eventArgs.projectAddress, contractAddr, "event project address should match deployed project address");
-                        assert.equal(eventArgs.contributor, accounts[1], "event contributor should match account address");
+                        assert.equal(eventArgs.contributor, contributor, "event contributor should match account address");
                         assert.equal(eventArgs.amount.valueOf(), contributionAmount, "event amount should match contribution amount");
 
-                        var deployedProject = Project.at(contractAddr);
+                        deployedProject = Project.at(contractAddr);
                         return deployedProject.totalFunding.call();
                     })
                     .then(function (amount) {
+                        // 3. Verify contribution
                         assert.equal(amount.valueOf(), contributionAmount, "Project total funding should match only contribution");
+                        // 4. Request refund from expired Project
+                        assert.equal(endTime, web3.eth.blockNumber, "Should have expired at this point");
+                        return deployedProject.refund({from: contributor});
+                    })
+                    .then(function(refundTx) {
+                        return Promise.all([
+                            getEventsPromise(deployedProject.LogRefundIssued({},{})),
+                            web3.eth.getTransactionReceiptMined(refundTx)
+                        ]);
+                    })
+                    .then(function(eventAndReceipt) {
+                        var eventArgs = eventAndReceipt[0][0].args;
+                        // 5. Verify refund amount matched original contribution
+                        assert.equal(eventArgs.refundAmount.valueOf(), contributionAmount, "Refund amount should match original contribution");
                     });
             });
     });

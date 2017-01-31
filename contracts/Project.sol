@@ -137,7 +137,7 @@ contract Project {
         }
 
         // 1. Check that the project dealine has not passed
-        if (block.number >= properties.deadline) {
+        if (block.number > properties.deadline) {
             LogFundingFailed(address(this), totalFunding, contributionsCount);
             if (!_contributor.send(msg.value)) {
                 LogFailure("Project deadline has passed, problem returning contribution");
@@ -232,9 +232,11 @@ contract Project {
         contributors[msg.sender] = 0;
 
         if (msg.sender.send(amount)) {
+            LogRefundIssued(address(this), msg.sender, amount);
             return true;
         } else {
             contributors[msg.sender] = amount;
+            LogFailure("Refund did not send successfully");
             return false;
         }
         return true;
