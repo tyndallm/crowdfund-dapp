@@ -1,23 +1,23 @@
 import Web3 from 'web3';
+import {getExtendedWeb3Provider} from '../utils/web3Utils';
+import SimpleStorageContract from '../../build/contracts/SimpleStorage.json';
 
-import truffleConfig from '../../truffle.js';
-import {getExtendedWeb3Provider} from '../utils/Utils.js';
-import FundingHub from 'contracts/FundingHub.sol';
-import Project from 'contracts/Project.sol';
+const contract = require('truffle-contract');
 
-let web3Location = `http://${truffleConfig.rpc.host}:${truffleConfig.rpc.port}`;
 let web3Provided;
 
-// TODO: Figure out a better way to set providers for contracts
-FundingHub.setProvider(new Web3.providers.HttpProvider(web3Location));
-Project.setProvider(new Web3.providers.HttpProvider(web3Location));
+// An example of how to properly setup contracts in Truffle 3.x
+const simpleStorage = contract(SimpleStorageContract);
+simpleStorage.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
 
 function initializeWeb3() {
+    /*eslint-disable */
     if (typeof web3 !== 'undefined') {
         web3Provided = new Web3(web3.currentProvider);
     } else {
-        web3Provided = new Web3(new Web3.providers.HttpProvider(web3Location));
-    }    
+        web3Provided = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+    }
+    /*eslint-enable */
 
     return getExtendedWeb3Provider(web3Provided);
 }
@@ -64,127 +64,6 @@ export function getAccountBalance(account) {
     });
 }
 
-export function getProjects() {
-    return new Promise((resolve, reject) => {
-        let fundingHub = FundingHub.deployed();
-        fundingHub.numOfProjects.call().then(function(num) {
-            let projectCount = num.valueOf();
-
-            let array = Array.apply(null, {length: projectCount}).map(Number.call, Number);
-            let projectPromises = array.map((id => {
-                return getProjectAddress(id);
-            }));
-
-            Promise.all(projectPromises).then((projectAddresses) => {
-                let projectDetailPromises = projectAddresses.map((address => {
-                    return getProjectDetails(address);
-                }));
-
-                Promise.all(projectDetailPromises).then((projects) => {
-                    resolve(projects);
-                });
-            });
-        });
-    });
-}
-
-function getProjectAddress(id) {
-    return new Promise((resolve, reject) => {
-        let fundingHub = FundingHub.deployed();
-        fundingHub.projects.call(id).then(function(address) {
-            resolve(address);
-        });
-    });
-}
-
-export function getProjectDetails(address) {
-    return new Promise((resolve, reject) => {
-        let project = Project.at(address);
-        project.getProject.call().then(function(projectDetails) {
-            resolve({
-                title: projectDetails[0],
-                goal: projectDetails[1].toNumber(),
-                deadline: projectDetails[2].toNumber(),
-                creator: projectDetails[3],
-                totalFunding: projectDetails[4].toNumber(),
-                contributionsCount: projectDetails[5].toNumber(),
-                contributorsCount: projectDetails[6].toNumber(),
-                fundingHub: projectDetails[7],
-                address: projectDetails[8]
-            });
-        });
-    })
-}
-
-export function getProjectContributions(address) {
-    return new Promise((resolve, reject) => {
-        let project = Project.at(address);
-        project.contributionsCount.call().then(function(num) {
-            let contributionCount = num.valueOf();
-
-            let array = Array.apply(null, {length: contributionCount}).map(Number.call, Number);
-            let contributionPromises = array.map((id => {
-                return getContribution(address, id);
-            }));
-
-            Promise.all(contributionPromises).then((contributions) => {
-                resolve(contributions);
-            });
-        });
-    });
-}
-
-function getContribution(projectAddress, id) {
-    return new Promise((resolve, reject) => {
-        let project = Project.at(projectAddress);
-        project.getContribution.call(id).then(function(contribution) {
-            resolve({
-                amount: contribution[0].toNumber(),
-                contributor: contribution[1]
-            });
-        });
-    });
-}
-
-export function createProject(title, goal, creator, deadline) {
-    return new Promise((resolve, reject) => {
-
-        let fundingHub = FundingHub.deployed();
-        fundingHub.createProject(goal, deadline, title, { from: creator, gas: 1000000 })
-            .then(function(tx) {
-                console.log("project tx: ", tx);
-                return Promise.all([
-                    web3Client().eth.getTransactionReceiptMined(tx)
-                ]);
-            })
-            .then(function(receipt) {
-                console.log("[web3Api.fundingHub.createProject] transaction mined: ", receipt);
-                resolve(receipt);
-            });
-    })
-}
-
-export function makeContribution(projectAddress, amount, contributorAddress) {
-    return new Promise((resolve, reject) => {
-        let fundingHub = FundingHub.deployed();
-        fundingHub.contribute(projectAddress, { value: amount, from: contributorAddress, gas: 3000000})
-            .then(function(tx) {
-                console.log("contribution tx: ", tx);
-                return Promise.all([
-                    web3Client().eth.getTransactionReceiptMined(tx)
-                ]);
-            })
-            .then(function(receipt) {
-                console.log("[web3Api.fundingHub.contribute] transaction mined: ", receipt);
-                resolve(receipt);
-            });
-    })
-}
-
-export function withdrawContribution() {
-    // TODO
-}
-
 export function getCurrentBlockNumber() {
     return new Promise((resolve, reject) => {
         web3Client().eth.getBlockNumber(function (err, blockNum) {
@@ -214,20 +93,3 @@ export function toWei(ethValue) {
 export function fromWei(weiValue) {
     return web3Client().fromWei(weiValue, "ether");
 }
-
-export function getFundingHubAddress() {
-    let address = FundingHub.deployed().address;
-    console.log(address);
-    return address;
-}
-
-
-
-
-
-
-
-
-
-
-
