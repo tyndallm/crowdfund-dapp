@@ -1,3 +1,5 @@
+This branch is the state of the project when submitted for b9 lab final project. intended for historical purposes only
+
 ## Decentralized Crowdfunding App
 
 This is a simple crowdfunding dapp intended to show off what I've learned from the B9 Lab Ethereum course. The contracts are written in Solidity and the app is utilizing the Truffle framework. The frontend of the app is built with React and Webpack. 
