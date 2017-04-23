@@ -1,14 +1,14 @@
 import Web3 from 'web3';
 import {getExtendedWeb3Provider} from '../utils/web3Utils';
-import SimpleStorageContract from '../../build/contracts/SimpleStorage.json';
+// import SimpleStorageContract from '../../build/contracts/SimpleStorage.json';
 
 const contract = require('truffle-contract');
 
 let web3Provided;
 
 // An example of how to properly setup contracts in Truffle 3.x
-const simpleStorage = contract(SimpleStorageContract);
-simpleStorage.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
+// const simpleStorage = contract(SimpleStorageContract);
+// simpleStorage.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
 
 function initializeWeb3() {
     /*eslint-disable */
