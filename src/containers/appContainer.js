@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
-import { Container, Message } from 'semantic-ui-react';
+import { Container, Message, Divider } from 'semantic-ui-react';
 import Navigation from '../components/navigation';
 
 import {
@@ -84,6 +84,7 @@ class AppContainer extends Component {
                     user={this.props.user}
                     onHandleSelectAccount={this.handleSelectAccount} />
                 {this.getNetworkStatusAlert(netId, curBlockNumber)}
+                <Divider />
                 {this.props.children}
             </div>
         );
