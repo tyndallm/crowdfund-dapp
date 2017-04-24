@@ -24,3 +24,5 @@ export const failureReducer = (state, action) => {
 }
 
 export const fetchAccountsSuccessReducer = createSuccessReducer("accounts");
+export const fetchNetworkSuccessReducer = createSuccessReducer("network");
+export const fetchBlockNumberSuccessReducer = createSuccessReducer("currentBlock");
