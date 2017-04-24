@@ -48,13 +48,12 @@ class AppContainer extends Component {
                 break;
         }
 
-        let message = `Currently on ${networkDisplayName} (${networkId}) The current block is ${currentBlock}`;
+        let message = `Currently on ${networkDisplayName} (${networkId}), the current block is ${currentBlock}.`;
         console.log(message);
 
         return (
             <Message
                 info
-                header='Network'
                 content={message}/>
         )
     }
