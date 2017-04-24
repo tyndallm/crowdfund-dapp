@@ -7,6 +7,7 @@ export const fetchAccountFailure = "@@user/FETCH_ACCOUNTS_FAILURE";
 export const selectAccount = "@@user/SELECT_ACCOUNT";
 
 export function fetchAccountsAndBalances() {
+    console.log("userActions.fetchAccountsAndBalances()");
     return {
         types: [
             fetchAccountsRequest,

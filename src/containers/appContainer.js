@@ -3,31 +3,29 @@ import {connect} from 'react-redux';
 import { Container } from 'semantic-ui-react';
 import Navigation from '../components/navigation';
 
-import {fetchAccountsAndBalances} from '../actions/userActions';
+import {
+    fetchAccountsAndBalances,
+    setSelectedAccount,
+} from '../actions/userActions';
 
 class AppContainer extends Component {
     
     componentDidMount() {
         const {dispatch} = this.props;
-        dispatch(fetchAccountsAndBalances);
+        console.log("appContainer.componentDidMount()");
+        dispatch(fetchAccountsAndBalances());
     }
 
     handleSelectAccount = (accountIndex) => {
-        console.log("account selected: " + accountIndex);
+        const {dispatch} = this.props;
+        dispatch(setSelectedAccount(accountIndex));
     }
 
     render() {
-        console.log(this.props.user);
-        let accounts = [];
-        console
-        if (this.props.user.accounts.length > 0) {
-            accounts = this.props.user.accounts;
-        }
-
         let content = (
             <div>
                 <Navigation 
-                    accounts={accounts}
+                    user={this.props.user}
                     onHandleSelectAccount={this.handleSelectAccount} />
                 {this.props.children}
             </div>

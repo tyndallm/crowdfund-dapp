@@ -1,5 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
+import { Container } from 'semantic-ui-react';
 
 var _this;
 
@@ -11,15 +12,15 @@ class HomeContainer extends React.Component {
     }
 
     componentDidMount() {
-        console.log("homeContainer.componentDidMount()");
-        console.log(this.props);
+        // console.log("homeContainer.componentDidMount()");
+        // console.log(this.props);
     }
 
     render() {
         return (
-            <div>
+            <Container>
                 <p>Hello Ethereum</p>
-            </div>
+            </Container>
         )
     }
 }

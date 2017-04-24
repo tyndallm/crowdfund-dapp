@@ -61,8 +61,7 @@
     "redux-actions": "^2.0.2",
     "redux-devtools-dock-monitor": "^1.1.1",
     "redux-thunk": "^2.2.0",
-    "semantic-ui-react": "^0.68.1",
-    "web3": "^0.18.2"
+    "semantic-ui-react": "^0.68.1"
   },
   "scripts": {
     "start": "node scripts/start.js",
