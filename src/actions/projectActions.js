@@ -3,9 +3,9 @@ import * as Web3Api from '../api/web3Api';
 export const fetchProjectRequest = "@@project/FETCH_PROJECT_REQUEST";
 export const fetchProjectSuccess = "@@project/FETCH_PROJECT_SUCCESS";
 export const fetchProjectFailure = "@@project/FETCH_PROJECT_FAILURE";
-// export const fetchProjectBalanceRequest = "@@project/FETCH_PROJECT_BALANCE_REQUEST";
-// export const fetchProjectBalanceSuccess = "@@project/FETCH_PROJECT_BALANCE_SUCCESS";
-// export const fetchProjectBalanceFailure = "@@project/FETCH_PROJECT_BALANCE_FAILURE";
+export const fetchProjectBalanceRequest = "@@project/FETCH_PROJECT_BALANCE_REQUEST";
+export const fetchProjectBalanceSuccess = "@@project/FETCH_PROJECT_BALANCE_SUCCESS";
+export const fetchProjectBalanceFailure = "@@project/FETCH_PROJECT_BALANCE_FAILURE";
 export const contributeProjectRequest = "@@project/CONTRIBUTE_PROJECT_REQUEST";
 export const contributeProjectSuccess = "@@project/CONTRIBUTE_PROJECT_SUCCESS";
 export const contributeProjectFailure = "@@project/CONTRIBUTE_PROJECT_FAILURE";
@@ -34,14 +34,14 @@ export function contribute(contractAddress, amount, userAddress) {
     };
 }
 
-// export function fetchProjectBalance(contractAddress) {
-//     return {
-//         types: [
-//             fetchProjectBalanceRequest,
-//             fetchProjectBalanceSuccess,
-//             fetchProjectBalanceFailure,
-//         ],
-//         callApi: () => Web3Api.getAddressBalance(contractAddress),
-//         payload: {}
-//     };
-// };
+export function fetchProjectBalance(contractAddress) {
+    return {
+        types: [
+            fetchProjectBalanceRequest,
+            fetchProjectBalanceSuccess,
+            fetchProjectBalanceFailure,
+        ],
+        callApi: () => Web3Api.getAddressBalance(contractAddress),
+        payload: {}
+    };
+};

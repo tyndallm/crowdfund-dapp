@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import { Card, Grid } from 'semantic-ui-react';
 import ProjectCard from '../components/projectCard';
 import { fetchProject, contribute, fetchProjectBalance } from '../actions/projectActions';
+import { fetchAccountsAndBalances } from '../actions/userActions';
 import ContributionList from '../components/contributionList';
 import ProjectDetails from '../components/projectDetails';
 import ContributeModal from '../components/contributeModal';
@@ -25,7 +26,7 @@ class ProjectContainer extends Component {
         const { dispatch, params } = _this.props;
         console.log("ProjectContainer firing???");
         dispatch(fetchProject(params.address));
-        // dispatch(fetchProjectBalance(params.address));
+        dispatch(fetchProjectBalance(params.address));
     }
 
 
@@ -49,7 +50,11 @@ class ProjectContainer extends Component {
         let selectedUserAddress = user.accounts[user.selectedAccount].address;
 
         if (!!selectedUserAddress) {
-            dispatch(contribute(project.project.address, amount, selectedUserAddress));
+            dispatch(contribute(project.project.address, amount, selectedUserAddress))
+            .then(() => {
+                dispatch(fetchProject(project.project.address));
+                dispatch(fetchAccountsAndBalances());
+            });
         }
     }
 

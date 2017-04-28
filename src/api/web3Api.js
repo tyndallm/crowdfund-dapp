@@ -51,6 +51,7 @@ export function getAccounts() {
             }));
 
             Promise.all(accountsAndBalances).then((accountsAndBalances) => {
+                console.log(accountsAndBalances);
                 resolve(accountsAndBalances);
             });
 
@@ -62,6 +63,7 @@ export function getAccounts() {
 export function getAccountBalance(account) {
     return new Promise((resolve, reject) => {
         web3Client().eth.getBalance(account, function(err, value) {
+            console.log(value.valueOf());
             resolve(value.valueOf());
         });
     });
@@ -171,13 +173,13 @@ export function contribute(contractAddr, amount, contributorAddr) {
     });
 }
 
-// export function getAddressBalance(address) {
-//     return new Promise((resolve, reject) => {
-//         web3Client().eth.getBalance(address, function(err, value) {
-//             resolve(value.valueOf());
-//         });
-//     });
-// }
+export function getAddressBalance(address) {
+    return new Promise((resolve, reject) => {
+        web3Client().eth.getBalance(address, function(err, value) {
+            resolve(value.valueOf());
+        });
+    });
+}
 
 export function getCurrentBlockNumber() {
     return new Promise((resolve, reject) => {

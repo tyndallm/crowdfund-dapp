@@ -7,9 +7,9 @@ import {
     contributeProjectRequest,
     contributeProjectSuccess,
     contributeProjectFailure,
-    // fetchProjectBalanceRequest,
-    // fetchProjectBalanceSuccess,
-    // fetchProjectBalanceFailure,
+    fetchProjectBalanceRequest,
+    fetchProjectBalanceSuccess,
+    fetchProjectBalanceFailure,
 } from '../actions/projectActions';
 
 import {
@@ -30,23 +30,19 @@ const initialState = {
         contributorsCount: 0,
         fundingHub: "-",
         address: "-",
-        balance: 0
     },
-    contributionSuccessful: true
+    contributionSuccessful: true,
+    balance: 0,
 }
 
-// function fetchProjectBalanceSuccessReducer(state, action) {
-    // console.log("state: ", state);
-    // return Object.assign({}, state, {
-    //     isFetching: false,
-    //     fetchComplete: true,
-    //     project: {
-    //         ...state.project,
-    //         balance: action.payload
-    //     }
-    // });
-//     return state;
-// };
+function fetchProjectBalanceSuccessReducer(state, action) {
+    console.log("state: ", state);
+    return Object.assign({}, state, {
+        isFetching: false,
+        fetchComplete: true,
+        balance: action.payload
+    });
+};
 
 function contributeProjectSuccessReducer(state, action) {
     console.log("action: ", action);
@@ -61,6 +57,9 @@ export const projectReducer = handleActions({
     [fetchProjectRequest]: requestReducer,
     [fetchProjectSuccess]: fetchProjectSuccessReducer,
     [fetchProjectFailure]: failureReducer,
+    [fetchProjectBalanceRequest]: requestReducer,
+    [fetchProjectBalanceSuccess]: fetchProjectBalanceSuccessReducer,
+    [fetchProjectBalanceFailure]: failureReducer,
     [contributeProjectRequest]: requestReducer,
     [contributeProjectSuccess]: contributeProjectSuccessReducer,
     [contributeProjectFailure]: failureReducer,

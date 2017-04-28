@@ -44,7 +44,10 @@ class HomeContainer extends Component {
         let selectedUserAddress = user.accounts[user.selectedAccount].address;
 
         if (!!selectedUserAddress) {
-            dispatch(createProject(project, selectedUserAddress));
+            dispatch(createProject(project, selectedUserAddress))
+            .then(() => {
+                dispatch(fetchProjects());
+            });
         }
     }
 
