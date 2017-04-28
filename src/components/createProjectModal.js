@@ -21,8 +21,13 @@ class CreateProjectModal extends Component {
     handleChange = (e, { name, value }) => this.setState({ [name]: value })
 
     handleClose = () => {
-        this.setState(initialState);
         this.props.onCloseModal();
+        this.setState(initialState);
+    }
+
+    handleCreate = () => {
+        this.props.onHandleProjectCreate(this.state);
+        this.setState(initialState);
     }
 
     render () {
@@ -64,7 +69,8 @@ class CreateProjectModal extends Component {
                         </Modal.Description>
                     </Modal.Content>
                     <Modal.Actions>
-                        <Button primary>Create</Button>
+                        <Button onClick={this.handleClose}>Cancel</Button>
+                        <Button primary onClick={this.handleCreate}>Create</Button>
                     </Modal.Actions>
                 </Modal>
             </div>
@@ -77,6 +83,7 @@ CreateProjectModal.PropTypes = {
     gasCost: React.PropTypes.number.isRequired,
     currentBlock: React.PropTypes.number.isRequired,
     onCloseModal: React.PropTypes.func.isRequired,
+    onHandleProjectCreate: React.PropTypes.func.isRequired,
 }
 
 export default CreateProjectModal;

@@ -15,8 +15,7 @@ export function apiMiddleware({ dispatch, getState }) {
         }
 
         if (
-            !Array.isArray(types) ||
-            types.length !== 3 || !types.every(type => typeof type === "string")
+            !Array.isArray(types) || !types.every(type => typeof type === "string")
         ) {
             throw new Error("Expected an array of three string types.");
         }

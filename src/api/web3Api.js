@@ -1,14 +1,17 @@
 import Web3 from 'web3';
 import {getExtendedWeb3Provider} from '../utils/web3Utils';
-// import SimpleStorageContract from '../../build/contracts/SimpleStorage.json';
+import FundingHubContract from '../../build/contracts/FundingHub.json';
+import ProjectContract from '../../build/contracts/Project.json';
 
 const contract = require('truffle-contract');
 
 let web3Provided;
 
-// An example of how to properly setup contracts in Truffle 3.x
-// const simpleStorage = contract(SimpleStorageContract);
-// simpleStorage.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
+const fundingHub = contract(FundingHubContract);
+fundingHub.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
+
+const project = contract(ProjectContract);
+project.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
 
 function initializeWeb3() {
     /*eslint-disable */
@@ -63,6 +66,118 @@ export function getAccountBalance(account) {
         });
     });
 }
+
+export function getProjects() {
+    return new Promise((resolve, reject) => {
+        let fundingHubInstance;
+        fundingHub.deployed().then(function(instance) {
+            fundingHubInstance = instance;
+            return fundingHubInstance.numOfProjects.call();
+        }).then(function(result) {
+
+            let projectCount = result.valueOf();
+
+            // create an array where length = projectCount
+            let array = Array.apply(null, {length: projectCount}).map(Number.call, Number);
+
+            // fill array with corresponding project contract addresses
+            let projectPromises = array.map((id => {
+                return getProjectAddress(id);
+            }));
+
+            // get projectDetails for each projectAddress promise
+            Promise.all(projectPromises).then((projectAddresses) => {
+                let projectDetailPromises = projectAddresses.map((address => {
+                    return getProjectDetails(address);
+                }));
+
+                Promise.all(projectDetailPromises).then((projects) => {
+                    console.log("getProjects(): ", projects);
+                    resolve(projects);
+                });
+            });
+        });
+    });
+}
+
+function getProjectAddress(id) {
+    return new Promise((resolve, reject) => {
+        fundingHub.deployed().then(function(fundingHubInstance) {
+            fundingHubInstance.projects.call(id).then(function(address) {
+                resolve(address);
+            });
+        });
+    });
+}
+
+export function getProjectDetails(address) {
+    console.log(address);
+    return new Promise((resolve, reject) => {
+        let projectInstance;
+        project.at(address).then(function(instance) {
+            projectInstance = instance;
+            projectInstance.getProject.call().then(function(projectDetails) {
+                resolve({
+                    title: projectDetails[0],
+                    goal: projectDetails[1].toNumber(),
+                    deadline: projectDetails[2].toNumber(),
+                    creator: projectDetails[3],
+                    totalFunding: projectDetails[4].toNumber(),
+                    contributionsCount: projectDetails[5].toNumber(),
+                    contributorsCount: projectDetails[6].toNumber(),
+                    fundingHub: projectDetails[7],
+                    address: projectDetails[8]
+                });
+            });
+        });
+    });
+}
+
+export function createProject(params, creator) {
+    return new Promise((resolve, reject) => {
+        let fundingHubInstance;
+        fundingHub.deployed().then(function(instance) {
+            fundingHubInstance = instance;
+            fundingHubInstance.createProject(
+                params.projectGoalInEth,
+                params.projectDeadline,
+                params.projectName,
+                {
+                    from: creator,
+                    gas: 1000000
+                }
+            ).then(function(tx) {
+                console.log("web3Api.createProject() project tx: ", tx);
+                resolve(tx);
+            });
+        });
+    });
+}
+
+export function contribute(contractAddr, amount, contributorAddr) {
+    console.log("contractAddr: ", contractAddr);
+    console.log("amount: ", amount);
+    console.log("contributorAddr: ", contributorAddr);
+    let amt = parseInt(amount); // possible bug here?
+    console.log("amt: ", amt);
+    return new Promise((resolve, reject) => {
+        fundingHub.deployed().then(function(instance) {
+            instance.contribute(contractAddr, { value: amt, from: contributorAddr, gas: 3000000}
+            ).then(function(tx) {
+                console.log("web3Api.contribute() contribution tx: ", tx);
+                resolve(tx);
+            });
+        });
+    });
+}
+
+// export function getAddressBalance(address) {
+//     return new Promise((resolve, reject) => {
+//         web3Client().eth.getBalance(address, function(err, value) {
+//             resolve(value.valueOf());
+//         });
+//     });
+// }
 
 export function getCurrentBlockNumber() {
     return new Promise((resolve, reject) => {

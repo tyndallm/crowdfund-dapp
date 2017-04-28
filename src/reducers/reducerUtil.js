@@ -23,6 +23,15 @@ export const failureReducer = (state, action) => {
     });
 }
 
+// User
 export const fetchAccountsSuccessReducer = createSuccessReducer("accounts");
+
+// Network
 export const fetchNetworkSuccessReducer = createSuccessReducer("network");
 export const fetchBlockNumberSuccessReducer = createSuccessReducer("currentBlock");
+
+// FundingHub
+export const fetchProjectsSuccessReducer = createSuccessReducer("projects");
+
+// Project
+export const fetchProjectSuccessReducer = createSuccessReducer("project");

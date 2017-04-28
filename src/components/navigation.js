@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Menu, Dropdown } from 'semantic-ui-react';
-import { getAccountString } from '../utils/textUtils';
+import { Menu, Dropdown, Container } from 'semantic-ui-react';
+import { getFormattedUserAccount } from '../utils/textUtils';
 
 class Navigation extends Component {
 
@@ -15,16 +15,19 @@ class Navigation extends Component {
 
         let selectedDropdown = "";
         if (accounts.length > 0) {
-            selectedDropdown = getAccountString(accounts[selectedAccount]);
+            selectedDropdown = getFormattedUserAccount(accounts[selectedAccount]);
         }
 
         return (
             <Menu
                 size={'huge'}
-                borderless={true}>
+                borderless={true}
+                fixed={'top'}>
+
+                <Container>
                 
                 <Menu.Item header>
-                    Crowdfund Dapp
+                    <a href='/'>Crowdfund Dapp</a>
                 </Menu.Item>
 
                 <Menu.Menu position='right'>
@@ -34,12 +37,13 @@ class Navigation extends Component {
                                 <Dropdown.Item 
                                     key={index}
                                     onClick={() => this.props.onHandleSelectAccount(index)}>
-                                    {getAccountString(account)}
+                                    {getFormattedUserAccount(account)}
                                 </Dropdown.Item>
                             )}
                         </Dropdown.Menu>
                     </Dropdown>
                 </Menu.Menu>
+                </Container>
             </Menu>
         )
     }

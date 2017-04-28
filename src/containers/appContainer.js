@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
-import { Container, Message, Divider } from 'semantic-ui-react';
+import { Container, Message, Grid } from 'semantic-ui-react';
 import Navigation from '../components/navigation';
 
 import {
@@ -12,6 +12,8 @@ import {
     fetchNetwork,
     fetchBlockNumber,
 } from '../actions/networkActions';
+
+import './appContainer.css';
 
 class AppContainer extends Component {
     
@@ -49,8 +51,7 @@ class AppContainer extends Component {
         }
 
         let message = `Currently on ${networkDisplayName} (${networkId}), the current block is ${currentBlock}.`;
-        console.log(message);
-
+        
         return (
             <Message
                 info
@@ -78,20 +79,21 @@ class AppContainer extends Component {
         }
 
         let content = (
-            <div>
+            <div className={'mainContent'}>
                 <Navigation 
                     user={this.props.user}
                     onHandleSelectAccount={this.handleSelectAccount} />
                 {this.getNetworkStatusAlert(netId, curBlockNumber)}
-                <Divider />
-                {this.props.children}
+                <Container>
+                    {this.props.children}
+                </Container>
             </div>
         );
 
         return (
-            <Container>
+            <Grid container>
                 {content}
-            </Container>
+            </Grid>
         );
     }
 }

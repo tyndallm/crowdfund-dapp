@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import { Container, Header, Divider, Button } from 'semantic-ui-react';
+import { push } from 'react-router-redux';
 
 import CreateProjectModal from '../components/createProjectModal';
+import ProjectList from '../components/projectList';
+import {createProject, fetchProjects} from '../actions/fundingHubActions';
+
 
 var _this;
 
-class HomeContainer extends React.Component {
+class HomeContainer extends Component {
 
     constructor(props) {
         super(props);
@@ -18,16 +22,8 @@ class HomeContainer extends React.Component {
     }
 
     componentDidMount() {
-        // console.log("homeContainer.componentDidMount()");
-        // console.log(this.props);
-    }
-
-    handleShowCreateProjectModal() {
-        _this.toggleModalDisplayed();
-    }
-
-    handleCreateProjectClicked() {
-        _this.toggleModalDisplayed();
+        const {dispatch} = _this.props;
+        dispatch(fetchProjects());
     }
 
     toggleModalDisplayed() {
@@ -36,23 +32,50 @@ class HomeContainer extends React.Component {
         });
     }
 
+    handleCreateProjectClicked() {
+        _this.toggleModalDisplayed();
+    }
+
+    handleCreateProject(project) {
+        const {dispatch, user} = _this.props;
+
+        _this.toggleModalDisplayed();
+
+        let selectedUserAddress = user.accounts[user.selectedAccount].address;
+
+        if (!!selectedUserAddress) {
+            dispatch(createProject(project, selectedUserAddress));
+        }
+    }
+
+    handleProjectClicked(projectAddress) {
+        const { dispatch } = _this.props;
+        dispatch(push(`/project/${projectAddress}`));
+    }
+
     render() {
-        console.log(this.props);
+        console.log("homeContainer props: ", this.props);
         return (
             <Container>
                 <Header as='h1'>Explore projects</Header>
-                <p>Crowdfund hub is a decentralized crowdfunding platform built on Ethereum. This site is intended to demonstrate a full featured dapp using the latest Ethereum and web development frameworks including Webpack, React, Redux, Semantic-ui, Solidity, Web3, and Truffle. Feel free to create projects and interact with it. All source code is available <a href="https://github.com/tyndallm/crowdfund-dapp">here</a> and is based off truffle-box</p>
+                <p>Crowdfund Dapp is a decentralized crowdfunding platform built on Ethereum. This site is intended to demonstrate a full featured dapp using the latest Ethereum and web development frameworks including Webpack, React, Redux, Semantic-ui, Solidity, Web3, and Truffle. Feel free to create projects and interact with it. All source code is available <a href="https://github.com/tyndallm/crowdfund-dapp">here</a> and is based off truffle-box</p>
                 <Button 
                     primary
                     onClick={this.handleCreateProjectClicked}>
                     Create a project
                 </Button>
                 <Divider/>
+                <ProjectList 
+                    projects={this.props.fundingHub.projects}
+                    isLoading={this.props.fundingHub.isFetching}
+                    blockNumber={this.props.network.currentBlock}
+                    onProjectClicked={this.handleProjectClicked}/>
                 <CreateProjectModal
                     isDisplayed={this.state.showCreateProjectModal}
                     gasCost={300000}
-                    blockNumber={this.props.blockNumber}
-                    onCloseModal={this.handleShowCreateProjectModal}/>
+                    blockNumber={this.props.network.blockNumber}
+                    onCloseModal={this.toggleModalDisplayed}
+                    onHandleProjectCreate={this.handleCreateProject}/>
             </Container>
         )
     }
@@ -61,7 +84,8 @@ class HomeContainer extends React.Component {
 function mapStateToProps(state) {
     return {
         user: state.user,
-        network: state.network
+        network: state.network,
+        fundingHub: state.fundingHub,
     }
 }
 
