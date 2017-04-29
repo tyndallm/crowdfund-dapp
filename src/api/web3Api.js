@@ -51,7 +51,6 @@ export function getAccounts() {
             }));
 
             Promise.all(accountsAndBalances).then((accountsAndBalances) => {
-                console.log(accountsAndBalances);
                 resolve(accountsAndBalances);
             });
 
@@ -94,7 +93,6 @@ export function getProjects() {
                 }));
 
                 Promise.all(projectDetailPromises).then((projects) => {
-                    console.log("getProjects(): ", projects);
                     resolve(projects);
                 });
             });
@@ -113,7 +111,6 @@ function getProjectAddress(id) {
 }
 
 export function getProjectDetails(address) {
-    console.log(address);
     return new Promise((resolve, reject) => {
         let projectInstance;
         project.at(address).then(function(instance) {
@@ -161,11 +158,11 @@ export function contribute(contractAddr, amount, contributorAddr) {
     console.log("amount: ", amount);
     console.log("contributorAddr: ", contributorAddr);
     let amt = parseInt(amount); // possible bug here?
-    console.log("amt: ", amt);
+    let amtInWei = toWei(amt);
     return new Promise((resolve, reject) => {
         fundingHub.deployed().then(function(instance) {
-            instance.contribute(contractAddr, { value: amt, from: contributorAddr, gas: 3000000}
-            ).then(function(tx) {
+            instance.contribute(contractAddr, { value: amtInWei, from: contributorAddr, gas: 3000000})
+            .then(function(tx) {
                 console.log("web3Api.contribute() contribution tx: ", tx);
                 resolve(tx);
             });
