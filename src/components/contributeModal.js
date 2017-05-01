@@ -35,7 +35,7 @@ class ContributeModal extends Component {
                     open={isDisplayed}
                     closeOnDocumentClick={true}
                     onClose={this.handleClose}>
-                    <Modal.Header>Create a new crowdfunding project</Modal.Header>
+                    <Modal.Header>Contribute to this project</Modal.Header>
                     <Modal.Content>
                         <Modal.Description>
                             <Form>
@@ -50,7 +50,7 @@ class ContributeModal extends Component {
                     </Modal.Content>
                     <Modal.Actions>
                         <Button onClick={this.handleClose}>Cancel</Button>
-                        <Button primary onClick={this.handleContribute}>Create</Button>
+                        <Button primary onClick={this.handleContribute}>Contribute</Button>
                     </Modal.Actions>
                 </Modal>
             </div>

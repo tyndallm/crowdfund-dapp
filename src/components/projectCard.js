@@ -30,7 +30,7 @@ class ProjectCard extends Component {
                         <Card.Description as={'h2'}>
                             {project.totalFunding + " / " + project.goal + " ETH"}
                         </Card.Description>
-                        <Progress percent={getFormattedProgressPercentage(project.totalFunding, project.goal)} size='large' color={'yellow'}>
+                        <Progress percent={getFormattedProgressPercentage(project.totalFunding, project.goal)} size='large' color='yellow'>
                             {getFormattedProgressPercentage(project.totalFunding, project.goal) + "%"}
                         </Progress>
                         <Button onClick={_this.handleContributeClicked} primary>Contribute</Button>

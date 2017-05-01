@@ -39,10 +39,11 @@ class ProjectDetails extends Component {
                 </Segment>
                 <Segment attached>
                     <Header as={'h5'}>Creator:</Header>
-                    <a href={getEtherscanLink(project.cretor)}>{project.creator}</a>
+                    <a href={getEtherscanLink(project.creator)}>{project.creator}</a>
                 </Segment>
                 <Segment attached={'bottom'}>
-                    Balance: { balance } ETH
+                    <Header as={'h5'}>Balance</Header>
+                    { balance } ETH
                 </Segment>
             </div>
         )

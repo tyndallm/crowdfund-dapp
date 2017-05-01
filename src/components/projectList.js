@@ -19,7 +19,7 @@ class ProjectList extends Component {
                             <Item.Meta>{project.totalFunding + " / " + project.goal + " ETH"}</Item.Meta>
                             <Item.Description>
                             </Item.Description>
-                            <Progress percent={getFormattedProgressPercentage(project.totalFunding, project.goal)} size='tiny'>
+                            <Progress percent={getFormattedProgressPercentage(project.totalFunding, project.goal)} size='tiny' color='yellow'>
                                 {getFormattedProgressPercentage(project.totalFunding, project.goal) + "%"}
                             </Progress>
                             <Item.Extra>

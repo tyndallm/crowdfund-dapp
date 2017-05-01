@@ -96,7 +96,8 @@ class ProjectContainer extends Component {
                             onHandleContribute={_this.handleContribute}/>
                     </Grid.Row>
                     <Grid.Row>
-                        <ContributionList contributions={contributions}/>
+                        <ContributionList 
+                            contributions={contributions}/>
                     </Grid.Row>
                     </Grid>   
         )

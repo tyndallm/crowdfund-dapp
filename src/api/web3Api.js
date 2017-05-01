@@ -47,7 +47,9 @@ export function getAccounts() {
             }
 
             let accountsAndBalances = accts.map((address => {
-                return getAccountBalance(address).then((balance) => { return { address, balance} });
+                return getAccountBalance(address).then((balance) => { 
+                    return { address, balance} 
+                });
             }));
 
             Promise.all(accountsAndBalances).then((accountsAndBalances) => {
@@ -117,10 +119,10 @@ export function getProjectDetails(address) {
             projectInstance.getProject.call().then(function(projectDetails) {
                 resolve({
                     title: projectDetails[0],
-                    goal: projectDetails[1].toNumber(),
+                    goal: fromWei(projectDetails[1].toNumber()),
                     deadline: projectDetails[2].toNumber(),
                     creator: projectDetails[3],
-                    totalFunding: projectDetails[4].toNumber(),
+                    totalFunding: fromWei(projectDetails[4].toNumber()),
                     contributionsCount: projectDetails[5].toNumber(),
                     contributorsCount: projectDetails[6].toNumber(),
                     fundingHub: projectDetails[7],
@@ -137,7 +139,7 @@ export function createProject(params, creator) {
         fundingHub.deployed().then(function(instance) {
             fundingHubInstance = instance;
             fundingHubInstance.createProject(
-                params.projectGoalInEth,
+                toWei(params.projectGoalInEth),
                 params.projectDeadline,
                 params.projectName,
                 {
@@ -157,14 +159,15 @@ export function contribute(contractAddr, amount, contributorAddr) {
     console.log("amount: ", amount);
     console.log("contributorAddr: ", contributorAddr);
     // let amt = parseInt(amount); // possible bug here?
-    // let amtInWei = toWei(amt);
+    let amountInWei = toWei(amount);
+    console.log("amountInWei: ", amountInWei);
     return new Promise((resolve, reject) => {
         fundingHub.deployed().then(function(instance) {
             // web3Client().eth.sendTransaction({ to: "0XF9AEEE7969452E1934BCD2067E570D813BDA8D52", value: toWei(amount), from: contributorAddr, gas: 3000000}, function(result) {
             //     console.log(result);
             //     resolve(result);
             // });
-            instance.contribute(contractAddr, { value: toWei(amount), from: contributorAddr, gas: 3000000})
+            instance.contribute(contractAddr, { value: amountInWei, from: contributorAddr, gas: 3000000})
             .then(function(resultObject) {
                 console.log("web3Api.contribute() transaction result object: ", resultObject);
                 resolve(resultObject);
@@ -208,7 +211,7 @@ function getContribution(projectAddress, id) {
 export function getAddressBalance(address) {
     return new Promise((resolve, reject) => {
         web3Client().eth.getBalance(address, function(err, value) {
-            resolve(value.valueOf());
+            resolve(fromWei(value.valueOf()));
         });
     });
 }
