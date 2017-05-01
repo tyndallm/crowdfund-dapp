@@ -40,9 +40,9 @@ Here is an example of how this flow works:
 
 
 ### Screenshots
-![Funding Hub screen](https://github.com/tyndallm/crowdfund-dapp/blob/master/docs/images/hub_screen.png?raw=true)
-![Create project screen](https://github.com/tyndallm/crowdfund-dapp/blob/master/docs/images/create_project.png?raw=true)
-![Project screen](https://github.com/tyndallm/crowdfund-dapp/blob/master/docs/images/project_screen.png?raw=true)
+![Funding Hub screen](https://github.com/tyndallm/crowdfund-dapp/raw/master/public/funding_hub_screen.png)
+![Create project screen](https://github.com/tyndallm/crowdfund-dapp/raw/master/public/create_project.png)
+![Project screen](https://github.com/tyndallm/crowdfund-dapp/raw/master/public/project.png)
 
 
 ### Running
