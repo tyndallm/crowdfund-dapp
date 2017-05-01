@@ -62,7 +62,6 @@ export function getAccounts() {
 export function getAccountBalance(account) {
     return new Promise((resolve, reject) => {
         web3Client().eth.getBalance(account, function(err, value) {
-            console.log(value.valueOf());
             resolve(value.valueOf());
         });
     });
@@ -157,14 +156,50 @@ export function contribute(contractAddr, amount, contributorAddr) {
     console.log("contractAddr: ", contractAddr);
     console.log("amount: ", amount);
     console.log("contributorAddr: ", contributorAddr);
-    let amt = parseInt(amount); // possible bug here?
-    let amtInWei = toWei(amt);
+    // let amt = parseInt(amount); // possible bug here?
+    // let amtInWei = toWei(amt);
     return new Promise((resolve, reject) => {
         fundingHub.deployed().then(function(instance) {
-            instance.contribute(contractAddr, { value: amtInWei, from: contributorAddr, gas: 3000000})
-            .then(function(tx) {
-                console.log("web3Api.contribute() contribution tx: ", tx);
-                resolve(tx);
+            // web3Client().eth.sendTransaction({ to: "0XF9AEEE7969452E1934BCD2067E570D813BDA8D52", value: toWei(amount), from: contributorAddr, gas: 3000000}, function(result) {
+            //     console.log(result);
+            //     resolve(result);
+            // });
+            instance.contribute(contractAddr, { value: toWei(amount), from: contributorAddr, gas: 3000000})
+            .then(function(resultObject) {
+                console.log("web3Api.contribute() transaction result object: ", resultObject);
+                resolve(resultObject);
+            });
+        });
+    });
+}
+
+export function getProjectContributions(address) {
+    return new Promise((resolve, reject) => {
+        project.at(address).then(function(instance) {
+            instance.contributionsCount.call().then(function(num) {
+                let contributionCount = num.valueOf();
+
+                let array = Array.apply(null, {length: contributionCount}).map(Number.call, Number);
+                let contributionPromises = array.map((id => {
+                    return getContribution(address, id);
+                }));
+
+                Promise.all(contributionPromises).then((contributions) => {
+                    resolve(contributions);
+                });
+            });
+        });
+    });
+}
+
+function getContribution(projectAddress, id) {
+    return new Promise((resolve, reject) => {
+        project.at(projectAddress).then(function(instance) {
+            instance.getContribution.call(id).then(function(contribution) {
+                resolve({
+                    amount: fromWei(contribution[0].toNumber()),
+                    contributor: contribution[1]
+                });
             });
         });
     });

@@ -2,7 +2,12 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import { Card, Grid } from 'semantic-ui-react';
 import ProjectCard from '../components/projectCard';
-import { fetchProject, contribute, fetchProjectBalance } from '../actions/projectActions';
+import { 
+    fetchProject,
+    contribute,
+    fetchProjectBalance,
+    fetchContributions
+} from '../actions/projectActions';
 import { fetchAccountsAndBalances } from '../actions/userActions';
 import ContributionList from '../components/contributionList';
 import ProjectDetails from '../components/projectDetails';
@@ -24,8 +29,8 @@ class ProjectContainer extends Component {
 
     componentDidMount() {
         const { dispatch, params } = _this.props;
-        console.log("ProjectContainer firing???");
         dispatch(fetchProject(params.address));
+        dispatch(fetchContributions(params.address));
         dispatch(fetchProjectBalance(params.address));
     }
 
@@ -43,8 +48,6 @@ class ProjectContainer extends Component {
     handleContribute(amount) {
         const {dispatch, user, project} = _this.props;
 
-        console.log("project: ", project);
-
         _this.toggleModalDisplayed();
 
         let selectedUserAddress = user.accounts[user.selectedAccount].address;
@@ -53,6 +56,7 @@ class ProjectContainer extends Component {
             dispatch(contribute(project.project.address, amount, selectedUserAddress))
             .then(() => {
                 dispatch(fetchProject(project.project.address));
+                dispatch(fetchContributions(project.project.address))
                 dispatch(fetchAccountsAndBalances());
             });
         }
@@ -66,14 +70,9 @@ class ProjectContainer extends Component {
                 currentBlock
             }
         } = this.props;
-        let projectDetails = project.project;
 
-        let contributions = [
-            {
-                contributor: "0xAb1234advgtny...",
-                amount: 20
-            }
-        ];
+        let projectDetails = project.project;
+        let contributions = project.contributions;
 
         return (
                 <Grid>
@@ -87,6 +86,7 @@ class ProjectContainer extends Component {
                         <Grid.Column width={6}>
                             <ProjectDetails 
                                 project={projectDetails}
+                                balance={project.balance}
                                 currentBlock={currentBlock}/>
                         </Grid.Column>
                         <ContributeModal 

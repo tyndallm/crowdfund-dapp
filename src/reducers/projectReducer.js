@@ -10,11 +10,15 @@ import {
     fetchProjectBalanceRequest,
     fetchProjectBalanceSuccess,
     fetchProjectBalanceFailure,
+    fetchContributionsRequest,
+    fetchContributionsSuccess,
+    fetchContributionsFailure
 } from '../actions/projectActions';
 
 import {
     requestReducer,
     fetchProjectSuccessReducer,
+    fetchContributionsSuccessReducer,
     failureReducer,
 } from './reducerUtil';
 
@@ -33,6 +37,7 @@ const initialState = {
     },
     contributionSuccessful: true,
     balance: 0,
+    contributions: [],
 }
 
 function fetchProjectBalanceSuccessReducer(state, action) {
@@ -63,4 +68,7 @@ export const projectReducer = handleActions({
     [contributeProjectRequest]: requestReducer,
     [contributeProjectSuccess]: contributeProjectSuccessReducer,
     [contributeProjectFailure]: failureReducer,
+    [fetchContributionsRequest]: requestReducer,
+    [fetchContributionsSuccess]: fetchContributionsSuccessReducer,
+    [fetchContributionsFailure]: failureReducer,
 }, initialState);

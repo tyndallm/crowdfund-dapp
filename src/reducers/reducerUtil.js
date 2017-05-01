@@ -35,3 +35,4 @@ export const fetchProjectsSuccessReducer = createSuccessReducer("projects");
 
 // Project
 export const fetchProjectSuccessReducer = createSuccessReducer("project");
+export const fetchContributionsSuccessReducer = createSuccessReducer("contributions");

@@ -5,7 +5,7 @@ import { Segment, Message, Header, Item } from 'semantic-ui-react';
 
 class ProjectDetails extends Component {
     render() {
-        const { project, currentBlock } = this.props;
+        const { project, balance, currentBlock } = this.props;
         return (
             <div>
                 <Message 
@@ -42,7 +42,7 @@ class ProjectDetails extends Component {
                     <a href={getEtherscanLink(project.cretor)}>{project.creator}</a>
                 </Segment>
                 <Segment attached={'bottom'}>
-                    Balance:
+                    Balance: { balance } ETH
                 </Segment>
             </div>
         )
@@ -51,6 +51,7 @@ class ProjectDetails extends Component {
 
 ProjectDetails.PropTypes = {
     project: React.PropTypes.object.isRequired,
+    balance: React.PropTypes.number.isRequired,
     currentBlock: React.PropTypes.number.isRequired,
 }
 

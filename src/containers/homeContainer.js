@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
-import { Container, Header, Divider, Button } from 'semantic-ui-react';
+import { Container, Header, Divider, Button, Message } from 'semantic-ui-react';
 import { push } from 'react-router-redux';
 
 import CreateProjectModal from '../components/createProjectModal';
@@ -56,8 +56,20 @@ class HomeContainer extends Component {
         dispatch(push(`/project/${projectAddress}`));
     }
 
+    getProjectsMessage(fundingHub) {
+        if (fundingHub.fetchComplete && fundingHub.projects.length === 0) {
+            return (
+                <Message warning>
+                    <Message.Header>No projects found</Message.Header>
+                    <p>Start a crowdfunding project by clicking the button above</p>
+                </Message> 
+            );
+        } else {
+            return null;
+        }
+    }
+
     render() {
-        console.log("homeContainer props: ", this.props);
         return (
             <Container>
                 <Header as='h1'>Explore projects</Header>
@@ -73,6 +85,7 @@ class HomeContainer extends Component {
                     isLoading={this.props.fundingHub.isFetching}
                     blockNumber={this.props.network.currentBlock}
                     onProjectClicked={this.handleProjectClicked}/>
+                {this.getProjectsMessage(this.props.fundingHub)}
                 <CreateProjectModal
                     isDisplayed={this.state.showCreateProjectModal}
                     gasCost={300000}
@@ -80,7 +93,7 @@ class HomeContainer extends Component {
                     onCloseModal={this.toggleModalDisplayed}
                     onHandleProjectCreate={this.handleCreateProject}/>
             </Container>
-        )
+        );
     }
 }
 
