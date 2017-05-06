@@ -58,6 +58,7 @@ class ProjectContainer extends Component {
                 dispatch(fetchProject(project.project.address));
                 dispatch(fetchContributions(project.project.address))
                 dispatch(fetchAccountsAndBalances());
+                dispatch(fetchProjectBalance(project.project.address));
             });
         }
     }
