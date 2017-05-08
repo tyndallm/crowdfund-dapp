@@ -3,4 +3,5 @@
 node_modules/
 *.log
 /build
+/build_webpack
 .truffle-solidity-loader
