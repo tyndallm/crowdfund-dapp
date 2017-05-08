@@ -13,6 +13,10 @@ fundingHub.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"))
 const project = contract(ProjectContract);
 project.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
 
+/**
+ * TODO: Add a check for a local web3, otherwise fallback to an infura instance
+ * This also needs to be https
+ */
 function initializeWeb3() {
     /*eslint-disable */
     if (typeof web3 !== 'undefined') {
