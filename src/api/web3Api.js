@@ -7,22 +7,37 @@ const contract = require('truffle-contract');
 
 let web3Provided;
 
-const fundingHub = contract(FundingHubContract);
-fundingHub.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
+let infuraUrl = "https://ropsten.infura.io/cilPQiS24wRUfcyOgTRJ";
 
+// Initialize FundingHub conttract
+const fundingHub = contract(FundingHubContract);
+/*eslint-disable */
+if (typeof web3 !== 'undefined') {
+    fundingHub.setProvider(new Web3(web3.currentProvider));
+} else {
+    fundingHub.setProvider(new Web3.providers.HttpProvider(infuraUrl));
+}
+/*eslint-enable */
+
+// Initial Project contract
 const project = contract(ProjectContract);
-project.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
+/*eslint-disable */
+if (typeof web3 !== 'undefined') {
+    project.setProvider(new Web3(web3.currentProvider));
+} else {
+    project.setProvider(new Web3.providers.HttpProvider(infuraUrl));
+}
+/*eslint-enable */
 
 /**
- * TODO: Add a check for a local web3, otherwise fallback to an infura instance
- * This also needs to be https
+ * Check for a local web3, otherwise fallback to an infura instance
  */
 function initializeWeb3() {
     /*eslint-disable */
     if (typeof web3 !== 'undefined') {
         web3Provided = new Web3(web3.currentProvider);
     } else {
-        web3Provided = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        web3Provided = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/cilPQiS24wRUfcyOgTRJ"));
     }
     /*eslint-enable */
 
