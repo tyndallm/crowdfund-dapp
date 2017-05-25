@@ -7,27 +7,22 @@ const contract = require('truffle-contract');
 
 let web3Provided;
 
-let infuraUrl = "https://ropsten.infura.io/cilPQiS24wRUfcyOgTRJ";
+let provider;
+/* eslint-disable */
+if (typeof web3 !== 'undefined') {
+    provider = new Web3(web3.currentProvider);
+} else {
+    provider = new Web3.providers.HttpProvider('http://localhost:8545');
+}
+/* esling-enable */
 
-// Initialize FundingHub conttract
+const web3 = new Web3(provider);
+
 const fundingHub = contract(FundingHubContract);
-/*eslint-disable */
-if (typeof web3 !== 'undefined') {
-    fundingHub.setProvider(new Web3(web3.currentProvider));
-} else {
-    fundingHub.setProvider(new Web3.providers.HttpProvider(infuraUrl));
-}
-/*eslint-enable */
+fundingHub.setProvider(provider);
 
-// Initial Project contract
 const project = contract(ProjectContract);
-/*eslint-disable */
-if (typeof web3 !== 'undefined') {
-    project.setProvider(new Web3(web3.currentProvider));
-} else {
-    project.setProvider(new Web3.providers.HttpProvider(infuraUrl));
-}
-/*eslint-enable */
+project.setProvider(provider);
 
 /**
  * Check for a local web3, otherwise fallback to an infura instance
@@ -37,7 +32,7 @@ function initializeWeb3() {
     if (typeof web3 !== 'undefined') {
         web3Provided = new Web3(web3.currentProvider);
     } else {
-        web3Provided = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/cilPQiS24wRUfcyOgTRJ"));
+        web3Provided = new Web3(new Web3.providers.HttpProvider(testrpcUrl));
     }
     /*eslint-enable */
 
@@ -95,7 +90,7 @@ export function getProjects() {
             fundingHubInstance = instance;
             return fundingHubInstance.numOfProjects.call();
         }).then(function(result) {
-
+            console.log("getProjects: ", result);
             let projectCount = result.valueOf();
 
             // create an array where length = projectCount
